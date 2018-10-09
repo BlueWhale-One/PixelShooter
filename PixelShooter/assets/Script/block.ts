@@ -16,7 +16,7 @@ export default class NewClass extends cc.Component {
             let speed = self.getComponent(cc.RigidBody).linearVelocity;  
             if (self.node.color!==cc.color(0,0,0)) {
                 self.getComponent(cc.RigidBody).linearVelocity = cc.v2(-speed.x, speed.y);
-            } else if(self.node.color==cc.color(0,0,0)||self.node.color==cc.color(30,187,30)){
+            } else{
                 if (speed.y > 0) {
                     self.getComponent(cc.RigidBody).linearVelocity = cc.v2(-speed.x, -speed.y);
                 }
@@ -25,7 +25,13 @@ export default class NewClass extends cc.Component {
                 }
             }
         }       
-
-
+        if(other.node.group=='brick'){
+            this.node.removeFromParent();
+        }
+    }
+    protected update(dt){
+        if(this.node.y>1700){
+            this.node.destroy();
+        }
     }
 }

@@ -4,26 +4,26 @@ import Bullet from "./bullet";
 import Brick from "./brick";
 
 const { ccclass, property } = cc._decorator;
-const BrickType = cc.Enum({
-    N1: 1,
-    N2: 2,
-    N3: 3,
-    N4: 4,
-    A1: 5,
-    A2: 6,
-    A3: 7,
-    A4: 8,
-    B1: 9,
-    B2: 10,
-    B3: 11,
-    B4: 12
-})
-const BrickState = cc.Enum({
-    move: 1,
-    touch: 2,
-    pause: 3,
-    end: 4
-})
+enum BrickType {
+    N1 = 0,
+    N2 = 1,
+    N3 = 2,
+    N4 = 3,
+    A1 = 4,
+    A2 = 5,
+    A3 = 6,
+    A4 = 7,
+    B1 = 8,
+    B2 = 9,
+    B3 = 10,
+    B4 = 11
+}
+enum BrickState {
+    move = 1,
+    touch,
+    pause,
+    end
+}
 
 
 @ccclass
@@ -79,9 +79,14 @@ export default class Game extends cc.Component {
     protected LevelView: cc.Node = null;
 
     protected isLoading: boolean = false;
-    protected speedconfig: number = 50;
     protected currentBrick: number = 0;
     protected distance: number = 0;
+
+    // 
+    public DataConfig: any = null;
+    public BrickData: any = null;
+
+    protected BrickNameData = [];
     /**
 	 * 总砖块数
 	 */
@@ -136,7 +141,7 @@ export default class Game extends cc.Component {
 
     }
     protected onEnable() {
-        // this.setBrick();
+
     }
 
     protected initTank(event: any) {
@@ -182,12 +187,15 @@ export default class Game extends cc.Component {
 
     protected reduceHeart() {
         this.HeartCount--;
+        console.log(this.HeartCount);
         // this.HeartList[this.HeartCount].destroy();
         // this.HeartList.splice(this.HeartCount, 1);
         this.HearLabel.string = "<outline color=#42350F width=2>" + this.HeartCount + "</outline>";
         if (this.HeartCount == 0) {
             if (this.Score < this.ConfigData[this.Level].score[0]) {
                 this.gameOver();
+            } else {
+                this.gameWin();
             }
         }
     }
@@ -196,171 +204,104 @@ export default class Game extends cc.Component {
     */
     protected setBrick() {
         // cc.log(this.ConfigData);       
-
-        for (let j = 0; j < this.ConfigData[this.Level].brick.length; j++) {
-            let time: number = 1;
-            if (j == BrickType.N2 - 1) {
-                time = 5
-            }
-            if (j == BrickType.N3 - 1) {
-                time = 15
-            }
-            if (j == BrickType.N4 - 1) {
-                time = 25
-            }
-            if (j == BrickType.A1 - 1) {
-                time = 35
-            }
-            if (j == BrickType.A2 - 1) {
-                time = 45
-            }
-            if (j == BrickType.A3 - 1) {
-                time = 55
-            }
-            if (j == BrickType.A4 - 1) {
-                time = 65
-            }
-            if (j == BrickType.B1 - 1) {
-                time = 10
-            }
-            if (j == BrickType.B2 - 1) {
-                time = 85
-            }
-            if (j == BrickType.B3 - 1) {
-                time = 5
-            }
-            if (j == BrickType.B4 - 1) {
-                time = 105
-            }
-
-            for (let i = 0; i < this.ConfigData[this.Level].brick[j]; i++) {
+        let length = Object.keys(this.ConfigData[this.Level].brick).length;
+        for (let j = 0; j < length; j++) {
+            let data = this.BrickData[j];
+            for (let i = 0; i < this.ConfigData[this.Level].brick[this.BrickNameData[j]]; i++) {
                 this.scheduleOnce(function () {
                     let brick = cc.instantiate(this.brickPrefabList[j]);
-                    brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.speedconfig * this.ConfigData[this.Level].speed));
-                    brick.setPosition(Math.random() * (this.BackGround.width - brick.width * 1.5) + brick.width * 1.5/2, this.BackGround.height - this.TopUI.height + brick.width * 1.5);
-                    if (j == BrickType.B2 - 1) {
-                        if (brick.position.x <= (300 + brick.width * 1.5)) {
-                            brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(80, -(this.speedconfig * this.ConfigData[this.Level].speed));
-                        } else if (brick.position.x >= this.BackGround.width - (300 + brick.width * 1.5)) {
-                            brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(-80, -(this.speedconfig * this.ConfigData[this.Level].speed));
+                    brick.parent = this.BackGround;
+                    brick.scale = data.scale;
+                    brick.setPosition(Math.random() * (this.BackGround.width - brick.width * 1.5 * brick.scale) + brick.width * 1.5 * brick.scale / 2, this.BackGround.height - this.TopUI.height + brick.width * 1.5);
+                    if (j == BrickType.B2) {
+                        if (brick.position.x <= (data.distance + brick.width * 1.5 * brick.scale)) {
+                            brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(data.speedx, -(this.ConfigData[this.Level].speed * data.speed));
+                        } else if (brick.position.x >= this.BackGround.width - (data.distance + brick.width * 1.5 * brick.scale)) {
+                            brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(-data.speedx, -(this.ConfigData[this.Level].speed * data.speed));
                         } else {
                             let arr = [-1, 1];
                             let a = arr[Math.round(Math.random())];
-                            brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(80 * a, -(this.speedconfig * this.ConfigData[this.Level].speed));
+                            brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(data.speedx * a, -(this.ConfigData[this.Level].speed * data.speed));
                         }
-                    } else if (j == BrickType.B3 - 1) {
-                        brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.speedconfig * this.ConfigData[this.Level].speed * 1.5));
+                    } else if (j == BrickType.B3) {
+                        brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.ConfigData[this.Level].speed * 1.5 * data.speed));
                     } else {
-                        brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.speedconfig * this.ConfigData[this.Level].speed));
+                        brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.ConfigData[this.Level].speed * data.speed));
                     }
-                    brick.parent = this.BackGround;
-                    if (j == BrickType.B1 - 1) {
-                        brick.getComponent(Brick).life = 3;
+
+                    if (j == BrickType.B1) {
+                        brick.getComponent(Brick).life = data.life;
                     }
-                    if (j == BrickType.B4 - 1) {
-                        brick.runAction(cc.repeatForever(cc.sequence(cc.fadeOut(0.01), cc.delayTime(1), cc.fadeIn(0.01), cc.delayTime(1))))
+                    if (j == BrickType.B4) {
+                        brick.runAction(cc.repeatForever(cc.sequence(cc.fadeOut(0.01), cc.delayTime(data.blinkhide), cc.fadeIn(0.01), cc.delayTime(data.blinkshow))));
                     }
                     this.BrickList.push(brick);
                     this.BrickCount++;
                     this.BrickNumber++;
-                    brick.getComponent("brick").type = j + 1;
-                }.bind(this), (i + 1) * time)
+                    brick.getComponent("brick").type = j;
+                }.bind(this), (i + 1) * (Math.random() * data.startTime + (data.endTime-data.startTime)));
             }
         }
-        /* 
-          for (let i = 0; i < this.ConfigData[this.Level].brick[0]; i++) {
-              this.scheduleOnce(function () {
-                  let brick = cc.instantiate(this.brickPrefabList[0]);
-                  brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.speedconfig * this.ConfigData[this.Level].speed));
-                  brick.setPosition(Math.random() * (this.BackGround.width - 80) + 40, this.BackGround.height - this.TopUI.height + brick.width * 1.5);
-                  brick.parent = this.BackGround;
-                  this.BrickList.push(brick);
-                  brick.getComponent("brick").type = BrickType.N1;
-                  this.BrickCount++;
-                  this.BrickNumber++;
-              }.bind(this), i)
-          }
-          for (let i = 0; i < this.ConfigData[this.Level].brick[1]; i++) {
-              this.scheduleOnce(function () {
-                  let brick: cc.Node = cc.instantiate(this.brickPrefabList[1]);
-                  brick.setPosition(Math.random() * (this.BackGround.width - 80) + 40, this.BackGround.height - this.TopUI.height + brick.width * 1.5);
-                  brick.parent = this.BackGround;
-                  brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.speedconfig * this.ConfigData[this.Level].speed));
-                  this.BrickList.push(brick);
-                  brick.getComponent("brick").type = BrickType.N2;
-                  this.BrickCount++;
-                  this.BrickNumber++;
-              }.bind(this), (i + 1) * (5 * Math.random() + 10));
-          }
-          for (let i = 0; i < this.ConfigData[this.Level].brick[2]; i++) {
-              this.scheduleOnce(function () {
-                  let brick = cc.instantiate(this.brickPrefabList[2]);
-                  brick.setPosition(Math.random() * (this.BackGround.width - 80) + 40, this.BackGround.height - this.TopUI.height + brick.width * 1.5);
-                  brick.parent = this.BackGround;
-                  this.BrickList.push(brick);
-                  brick.getComponent("brick").type = BrickType.N3;
-                  brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.speedconfig * this.ConfigData[this.Level].speed*2));
-                  this.BrickCount++;
-                  this.BrickNumber++;
-              }.bind(this), (i + 1) * (5 * Math.random() + 20))
-          }
-          for (let i = 0; i < this.ConfigData[this.Level].brick[3]; i++) {
-              this.scheduleOnce(function () {
-                  let brick = cc.instantiate(this.brickPrefabList[3]);
-                  brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.speedconfig * this.ConfigData[this.Level].speed*2));
-                  brick.setPosition(Math.random() * (this.BackGround.width - 80) + 40, this.BackGround.height - this.TopUI.height + brick.width * 1.5);
-                  brick.parent = this.BackGround;
-                  brick.getComponent("brick").type = BrickType.N4;
-                  this.BrickList.push(brick);
-                  this.BrickCount++;
-                  this.BrickNumber++;
-              }.bind(this), (i + 1) * (5 * Math.random() + 30))
-          }
-          for (let i = 0; i < this.ConfigData[this.Level].brick[4]; i++) {
-              this.scheduleOnce(function () {
-                  let brick = cc.instantiate(this.brickPrefabList[4]);
-                  brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.speedconfig * this.ConfigData[this.Level].speed)*2);
-                  brick.setPosition(Math.random() * (this.BackGround.width - 80) + 40, this.BackGround.height - this.TopUI.height + brick.width * 1.5);
-                  brick.parent = this.BackGround;
-                  this.BrickList.push(brick);
-                  brick.getComponent("brick").type = BrickType.N5;
-                  this.BrickCount++;
-                  this.BrickNumber++;
-              }.bind(this), (i + 1) * (5 * Math.random()))
-          }         */
     }
     protected getData() {
-        cc.loader.loadRes("./config", function (err, result) {
+        cc.loader.loadRes("./level", function (err, result) {
             if (err) {
-                cc.log(err);
+                console.log(err);
                 return;
             } else {
-                cc.log(result.json);
+                console.log(result.json);
             }
             this.ConfigData = result.json;
-            for (let i = 0; i < this.ConfigData[this.Level].brick.length; i++) {
-                this.totalBrickCount += this.ConfigData[this.Level].brick[i];
+
+        }.bind(this));
+
+        cc.loader.loadRes("./brick", function (err, result) {
+            if (err) {
+                console.log(err);
+                return;
+            } else {
+                console.log(result.json);
+            }
+            this.BrickData = result.json;
+            let arr = Object.keys(this.BrickData).length;
+            for (let i = 0; i < arr; i++) {
+                this.BrickNameData[i] = this.BrickData[i].type;
+                // cc.log(this.BrickNameData);
+            }
+            let length = Object.keys(this.ConfigData[this.Level].brick).length;
+            for (let j = 0; j < length; j++) {
+                this.totalBrickCount += this.ConfigData[this.Level].brick[this.BrickNameData[j]];
+
             }
             this.setBrick();
         }.bind(this));
+        cc.loader.loadRes("./config", function (err, result) {
+            if (err) {
+                console.log(err);
+                return;
+            } else {
+                console.log(result.json);
+            }
+            this.DataConfig = result.json;
+        }.bind(this));
     }
-
     /**
      * 产生小方块
      *  
      */
-    public reduceBrick(pos: cc.Vec2, type: number, node?: cc.Node, life?: number) {
+    public reduceBrick(pos: cc.Vec2, type: number, boom?: boolean, node?: cc.Node, life?: number) {
         if (life == 0) {
-            if (type == BrickType.A1 || type == BrickType.A2 || type == BrickType.A3) {
+            if (!boom) {
                 this.scheduleOnce(function () {
                     if (node) {
                         node.getComponent("brick").state = BrickState.end;
                     }
-                }.bind(this), 0.5);
+                    this.Count -= 4;
+                }.bind(this), this.BrickData[type].fadeTime + this.BrickData[type].delayTime + this.BrickData[type].scaleTime);
             } else {
                 let dir = [cc.v2(1, 1), cc.v2(-1, 1), cc.v2(-1, -1), cc.v2(1, -1)];
-                let dis: number = 40;
-                let speed: number = 200;
+                let dis: number = this.DataConfig["block"].position;
+                let speed: number = this.DataConfig["block"].speed;
                 for (let i = 0; i < 4; i++) {
                     let fadetime = 0;
                     let dirx = dir[i].x;
@@ -374,7 +315,6 @@ export default class Game extends cc.Component {
                         block.x = pos.x + dirx * dis;
                         block.y = pos.y + diry * dis;
                     }
-
                     let fun1 = cc.callFunc(function () {
                         switch (type) {
                             case BrickType.N1: {
@@ -397,6 +337,21 @@ export default class Game extends cc.Component {
                                 block.color = new cc.Color(30, 187, 30);
                             }
                                 break;
+                            case BrickType.A1: {
+                                block.getComponent(cc.RigidBody).linearVelocity = cc.v2(dirx * speed, diry * speed);
+                                block.color = new cc.Color(56, 176, 233);
+                            }
+                                break;
+                            case BrickType.A2: {
+                                block.getComponent(cc.RigidBody).linearVelocity = cc.v2(dirx * speed, diry * speed);
+                                block.color = new cc.Color(241, 241, 132);
+                            }
+                                break;
+                            case BrickType.A3: {
+                                block.getComponent(cc.RigidBody).linearVelocity = cc.v2(dirx * speed, diry * speed);
+                                block.color = new cc.Color(51, 51, 48);
+                            }
+                                break;
                             case BrickType.A4: {
                                 block.getComponent(cc.RigidBody).linearVelocity = cc.v2(dirx * speed, diry * speed);
                                 block.color = new cc.Color(111, 29, 255);
@@ -414,7 +369,7 @@ export default class Game extends cc.Component {
                                 break;
                             case BrickType.B3: {
                                 block.getComponent(cc.RigidBody).linearVelocity = cc.v2(dirx * speed, diry * speed);
-                                block.setContentSize(block.getContentSize().width * 0.5, block.getContentSize().height * 0.5);
+                                block.scale = 0.5;
                                 block.color = new cc.Color(240, 151, 39);
                             }
                                 break;
@@ -429,16 +384,15 @@ export default class Game extends cc.Component {
                     })
                     let fun2 = cc.callFunc(function () {
                         block.destroy();
-                        this.Count--;
                     }.bind(this))
-                    block.runAction(cc.sequence(fun1, cc.fadeOut(1), fun2));
-
+                    block.runAction(cc.sequence(fun1, cc.fadeOut(this.DataConfig["block"].fadeTime), fun2));
                 }
                 this.scheduleOnce(function () {
                     if (node) {
                         node.getComponent("brick").state = BrickState.end;
                     }
-                }.bind(this), 1);
+                    this.Count -= 4;
+                }.bind(this), this.DataConfig["block"].fadeTime);
             }
         }
     }
@@ -450,16 +404,20 @@ export default class Game extends cc.Component {
         this.Count += count * 4;
         this.Combo += count;
         for (let i = 0; i < count; i++) {
-            this.BrickList[i].getComponent("brick").state = BrickState.touch;
-            this.reduceBrick(this.BrickList[i].position, this.BrickList[i].getComponent('brick').type, this.BrickList[i], this.BrickList[i].getComponent('brick').life);
+            if (this.BrickList[i].getComponent("brick").state == BrickState.move) {
+                this.BrickList[i].getComponent("brick").state = BrickState.touch;
+                this.BrickList[i].getComponent("brick").life = 0;
+                this.reduceBrick(this.BrickList[i].position, this.BrickList[i].getComponent('brick').type, true, this.BrickList[i], this.BrickList[i].getComponent('brick').life);
+            }
         }
     }
     /**冻结
      */
     public freezeBlock(pos: cc.Vec2) {
         let circle = cc.instantiate(this.CirclePrefab);
+        let data = this.BrickData[BrickType.A1];
         circle.parent = this.BackGround;
-        circle.setContentSize(cc.size(10, 10));
+        circle.setContentSize(cc.size(data.startSize, data.startSize));
         circle.setPosition(pos);
         circle.zIndex = -1;
         circle.opacity = 120;
@@ -467,7 +425,7 @@ export default class Game extends cc.Component {
         let fun1 = cc.callFunc(function () {
             for (let i = 0; i < this.BrickList.length; i++) {
                 let dis = Math.abs(this.BrickList[i].position.sub(pos).mag());
-                if (dis <= 200) {
+                if (dis <= data.range) {
                     this.BrickList[i].getComponent(cc.RigidBody).linearVelocity = cc.v2(0, 0);
                 }
             }
@@ -475,14 +433,15 @@ export default class Game extends cc.Component {
         let fun2 = cc.callFunc(function () {
             circle.removeFromParent();
         }, this)
-        circle.runAction(cc.sequence(cc.scaleTo(0.5, 40), fun1, cc.delayTime(0.3), cc.fadeOut(0.2), fun2));
+        circle.runAction(cc.sequence(cc.scaleTo(data.scaleTime, data.range * 2 / data.startSize), fun1, cc.delayTime(data.delayTime), cc.fadeOut(data.fadeTime), fun2));
     }
     /**加速
      */
     public flashBlock(pos: cc.Vec2) {
         let circle = cc.instantiate(this.CirclePrefab);
+        let data = this.BrickData[BrickType.A2];
         circle.parent = this.BackGround;
-        circle.setContentSize(cc.size(10, 10));
+        circle.setContentSize(cc.size(data.startSize, data.startSize));
         circle.setPosition(pos);
         circle.zIndex = -1;
         circle.opacity = 120;
@@ -490,23 +449,24 @@ export default class Game extends cc.Component {
         let fun1 = cc.callFunc(function () {
             for (let i = 0; i < this.BrickList.length; i++) {
                 let dis = Math.abs(this.BrickList[i].position.sub(pos).mag());
-                if (dis <= 200) {
+                if (dis <= data.range) {
                     let speed = this.BrickList[i].getComponent(cc.RigidBody).linearVelocity;
-                    this.BrickList[i].getComponent(cc.RigidBody).linearVelocity = cc.v2(0, speed.y - 50);
+                    this.BrickList[i].getComponent(cc.RigidBody).linearVelocity = cc.v2(0, speed.y - data.speedUp);
                 }
             }
         }, this)
         let fun2 = cc.callFunc(function () {
             circle.removeFromParent();
         }, this)
-        circle.runAction(cc.sequence(cc.scaleTo(0.5, 40), fun1, cc.delayTime(0.3), cc.fadeOut(0.2), fun2));
+        circle.runAction(cc.sequence(cc.scaleTo(data.scaleTime, data.range * 2 / data.startSize), fun1, cc.delayTime(data.delayTime), cc.fadeOut(data.fadeTime), fun2));
     }
     /**爆炸
      */
     public boomBlock(pos: cc.Vec2) {
         let circle = cc.instantiate(this.CirclePrefab);
+        let data = this.BrickData[BrickType.A3];
         circle.parent = this.BackGround;
-        circle.setContentSize(cc.size(10, 10));
+        circle.setContentSize(cc.size(data.startSize, data.startSize));
         circle.setPosition(pos);
         circle.zIndex = -1;
         circle.opacity = 120;
@@ -514,16 +474,21 @@ export default class Game extends cc.Component {
         let fun1 = cc.callFunc(function () {
             for (let i = 0; i < this.BrickList.length; i++) {
                 let dis = Math.abs(this.BrickList[i].position.sub(pos).mag());
-                if (dis <= 200) {
-                    this.BrickList[i].getComponent("brick").state = BrickState.touch;
-                    this.reduceBrick(this.BrickList[i].position, this.BrickList[i].getComponent('brick').type, this.BrickList[i], this.BrickList[i].getComponent('brick').life);
+                if (dis <= data.range) {
+                    if (this.BrickList[i].getComponent("brick").state == BrickState.move) {
+                        this.Count += 4;
+                        this.Combo++;
+                        this.BrickList[i].getComponent("brick").state = BrickState.touch;
+                        this.BrickList[i].getComponent("brick").life = 0;
+                        this.reduceBrick(this.BrickList[i].position, this.BrickList[i].getComponent('brick').type, true, this.BrickList[i], this.BrickList[i].getComponent('brick').life);
+                    }
                 }
             }
         }, this)
         let fun2 = cc.callFunc(function () {
             circle.removeFromParent();
         }, this)
-        circle.runAction(cc.sequence(cc.scaleTo(0.5, 40), fun1, cc.delayTime(0.3), cc.fadeOut(0.2), fun2));
+        circle.runAction(cc.sequence(cc.scaleTo(data.scaleTime, data.range * 2 / data.startSize), fun1, cc.delayTime(data.delayTime), cc.fadeOut(data.fadeTime), fun2));
     }
     /**加强子弹
      */
@@ -550,16 +515,16 @@ export default class Game extends cc.Component {
         this.Untouch.active = true;
         this.scheduleOnce(function () {
             this.Untouch.active = false;
-        }.bind(this), 1)
+        }.bind(this), this.DataConfig['tank'].duration);
         let bullet = cc.instantiate(this.Bullet);
         bullet.x = this.Tank.x;
         bullet.y = this.Tank.y + this.Tank.height;
         bullet.parent = this.BackGround;
         bullet.getComponent(Bullet).power = this._powerUp;
+        bullet.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, this.DataConfig["tank"].speed);
         if (this._powerUp) {
             this._powerUp = false;
-            bullet.width = bullet.width * 2;
-            bullet.height = bullet.height * 2;
+            bullet.scale = this.BrickData[BrickType.A4].bulletScale;
         }
 
     }
@@ -599,9 +564,9 @@ export default class Game extends cc.Component {
             cc.find(str, this.GameWin).getComponent(cc.Label).string = this.ConfigData[this.Level].score[i];
 
         }
-        if (this.Level == 5) {
+        /* if (this.Level == 21) {
             cc.find(`conten/nextbutton`, this.GameWin).active = false;
-        }
+        } */
         let highscore = JSON.parse(cc.sys.localStorage.getItem("LevelData"))[this.Level].score;
         cc.find(`content/highscore`, this.GameWin).getComponent(cc.RichText).string = "<outline color=#3A230A width=5>" + highscore + "</outline>";
         cc.find(`content/score`, this.GameWin).getComponent(cc.RichText).string = "<outline color=#3A230A width=5>" + this.Score + "</outline>";
@@ -653,6 +618,8 @@ export default class Game extends cc.Component {
         cc.director.resume();
 
     }
+
+    // protected loadData:boolean=false; 
 
     protected update(dt) {
         this.Timer += dt;
