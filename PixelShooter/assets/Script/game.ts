@@ -93,6 +93,9 @@ export default class Game extends cc.Component {
     protected totalBrickCount: number = 0;
     public _powerUp: boolean = false;
 
+    protected randomList = [];
+    protected numList = [];
+
     protected onLoad() {
         this.Combo = 0;
         this.MaxCombo = 0;
@@ -199,49 +202,82 @@ export default class Game extends cc.Component {
             }
         }
     }
+
+
+    protected randomBrick() {
+        let random = Math.floor(Math.random() * this.totalBrickCount);
+        if (this.numList.length < this.totalBrickCount) {
+            for (let i = 0; i <= this.numList.length; i++) {
+                if (random == this.numList[i]) {
+                    break;
+                } else {
+                    if (i == this.numList.length) {
+                        this.numList.push(random);
+                        break;
+                    }
+                }
+            }
+            this.randomBrick();
+        }
+
+    }
     /**
     * 生成新砖块
     */
     protected setBrick() {
-        // cc.log(this.ConfigData);       
         let length = Object.keys(this.ConfigData[this.Level].brick).length;
-        for (let j = 0; j < length; j++) {
-            let data = this.BrickData[j];
-            for (let i = 0; i < this.ConfigData[this.Level].brick[this.BrickNameData[j]]; i++) {
-                this.scheduleOnce(function () {
-                    let brick = cc.instantiate(this.brickPrefabList[j]);
-                    brick.parent = this.BackGround;
-                    brick.scale = data.scale;
-                    brick.setPosition(Math.random() * (this.BackGround.width - brick.width * 1.5 * brick.scale) + brick.width * 1.5 * brick.scale / 2, this.BackGround.height - this.TopUI.height + brick.width * 1.5);
-                    if (j == BrickType.B2) {
-                        if (brick.position.x <= (data.distance + brick.width * 1.5 * brick.scale)) {
-                            brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(data.speedx, -(this.ConfigData[this.Level].speed * data.speed));
-                        } else if (brick.position.x >= this.BackGround.width - (data.distance + brick.width * 1.5 * brick.scale)) {
-                            brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(-data.speedx, -(this.ConfigData[this.Level].speed * data.speed));
-                        } else {
-                            let arr = [-1, 1];
-                            let a = arr[Math.round(Math.random())];
-                            brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(data.speedx * a, -(this.ConfigData[this.Level].speed * data.speed));
-                        }
-                    } else if (j == BrickType.B3) {
-                        brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.ConfigData[this.Level].speed * 1.5 * data.speed));
-                    } else {
-                        brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.ConfigData[this.Level].speed * data.speed));
-                    }
-
-                    if (j == BrickType.B1) {
-                        brick.getComponent(Brick).life = data.life;
-                    }
-                    if (j == BrickType.B4) {
-                        brick.runAction(cc.repeatForever(cc.sequence(cc.fadeOut(0.01), cc.delayTime(data.blinkhide), cc.fadeIn(0.01), cc.delayTime(data.blinkshow))));
-                    }
-                    this.BrickList.push(brick);
-                    this.BrickCount++;
-                    this.BrickNumber++;
-                    brick.getComponent("brick").type = j;
-                }.bind(this), (i + 1) * (Math.random() * data.startTime + (data.endTime-data.startTime)));
+        let count: number = 0;
+        for (let i = 0; i < length; i++) {
+            if (this.ConfigData[this.Level].brick[this.BrickNameData[i]] != 0) {
+                for (let j = count; j < (this.ConfigData[this.Level].brick[this.BrickNameData[i]] + count); j++) {
+                    this.randomList[j] = i;
+                }
             }
+            count = this.randomList.length;
         }
+        // cc.log(this.randomList);
+        this.randomBrick();
+
+        // cc.log(this.numList);
+
+        for (let i = 0; i < this.totalBrickCount; i++) {
+            let j = this.randomList[this.numList[i]];
+            let data = this.BrickData[j];
+            // cc.log(index);
+            this.scheduleOnce(function () {
+                let brick = cc.instantiate(this.brickPrefabList[j]);
+                brick.parent = this.BackGround;
+                brick.scale = data.scale;
+                brick.setPosition(Math.random() * (this.BackGround.width - brick.width * 1.5 * brick.scale) + brick.width * 1.5 * brick.scale / 2, this.BackGround.height - this.TopUI.height + brick.width * 1.5);
+                if (j == BrickType.B2) {
+                    if (brick.position.x <= (data.distance + brick.width * 1.5 * brick.scale)) {
+                        brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(data.speedx, -(this.ConfigData[this.Level].speed * data.speed));
+                    } else if (brick.position.x >= this.BackGround.width - (data.distance + brick.width * 1.5 * brick.scale)) {
+                        brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(-data.speedx, -(this.ConfigData[this.Level].speed * data.speed));
+                    } else {
+                        let arr = [-1, 1];
+                        let a = arr[Math.round(Math.random())];
+                        brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(data.speedx * a, -(this.ConfigData[this.Level].speed * data.speed));
+                    }
+                } else if (j == BrickType.B3) {
+                    brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.ConfigData[this.Level].speed * 1.5 * data.speed));
+                } else {
+                    brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.ConfigData[this.Level].speed * data.speed));
+                }
+
+                if (j == BrickType.B1) {
+                    brick.getComponent(Brick).life = data.life;
+                }
+                if (j == BrickType.B4) {
+                    brick.runAction(cc.repeatForever(cc.sequence(cc.fadeOut(0.01), cc.delayTime(data.blinkhide), cc.fadeIn(0.01), cc.delayTime(data.blinkshow))));
+                }
+                this.BrickList.push(brick);
+                this.BrickCount++;
+                this.BrickNumber++;
+                brick.getComponent("brick").type = j;
+            }.bind(this), this.ConfigData[this.Level].interval * (i + 1));
+        }
+
     }
     protected getData() {
         cc.loader.loadRes("./level", function (err, result) {
@@ -261,19 +297,19 @@ export default class Game extends cc.Component {
                 return;
             } else {
                 console.log(result.json);
-            }
-            this.BrickData = result.json;
-            let arr = Object.keys(this.BrickData).length;
-            for (let i = 0; i < arr; i++) {
-                this.BrickNameData[i] = this.BrickData[i].type;
-                // cc.log(this.BrickNameData);
-            }
-            let length = Object.keys(this.ConfigData[this.Level].brick).length;
-            for (let j = 0; j < length; j++) {
-                this.totalBrickCount += this.ConfigData[this.Level].brick[this.BrickNameData[j]];
+                this.BrickData = result.json;
+                let arr = Object.keys(this.BrickData).length;
+                for (let i = 0; i < arr; i++) {
+                    this.BrickNameData[i] = this.BrickData[i].type;
+                    // cc.log(this.BrickNameData);
+                }
+                let length = Object.keys(this.ConfigData[this.Level].brick).length;
+                for (let j = 0; j < length; j++) {
+                    this.totalBrickCount += this.ConfigData[this.Level].brick[this.BrickNameData[j]];
+                }
 
+                this.setBrick();
             }
-            this.setBrick();
         }.bind(this));
         cc.loader.loadRes("./config", function (err, result) {
             if (err) {
@@ -307,6 +343,7 @@ export default class Game extends cc.Component {
                     let dirx = dir[i].x;
                     let diry = dir[i].y;
                     let block = cc.instantiate(this.Block);
+                    block.scale = this.BrickData[type].scale;
                     block.parent = this.BackGround;
                     if (type == BrickType.B3) {
                         block.x = pos.x + dirx * dis * 0.5;
@@ -369,7 +406,6 @@ export default class Game extends cc.Component {
                                 break;
                             case BrickType.B3: {
                                 block.getComponent(cc.RigidBody).linearVelocity = cc.v2(dirx * speed, diry * speed);
-                                block.scale = 0.5;
                                 block.color = new cc.Color(240, 151, 39);
                             }
                                 break;

@@ -2,37 +2,27 @@
     "0": {
         "type":"N1普通方块",
         "speed":50,
-        "scale":1.36,
-        "startTime":0,
-        "endTime":1      
+        "scale":1.36     
     },
     "1":{
         "type":"N2红色方块",
         "speed":60,
-        "scale":1.36,
-        "startTime":5,
-        "endTime":10
+        "scale":1.36
     },
     "2":{
         "type":"N3全消除方块",
         "speed":70,
-        "scale":1.36,
-        "startTime":10,
-        "endTime":20
+        "scale":1.36
     },   
     "3":{
         "type":"N4加血方块",
         "speed":80,
-        "scale":1.36,
-        "startTime":10,
-        "endTime":50
+        "scale":1.36
     },
     "4":{
         "type":"A1冻结方块",
         "speed":30,
         "scale":1.36,
-        "startTime":10,
-        "endTime":30,
         "range":200,
         "startSize":10,
         "scaleTime":0.5,
@@ -43,8 +33,6 @@
         "type":"A2极速方块",
         "speed":80,
         "scale":1.36,
-        "startTime":15,
-        "endTime":20,
         "speedUp":20,
         "range":200,
         "startSize":10,
@@ -55,9 +43,7 @@
     "6":{
         "type":"A3炸弹方块",
         "speed":50,
-        "scale":1.36,
-        "startTime":20,
-        "endTime":50,
+        "scale":1.36,        
         "range":200,
         "startSize":10,
         "scaleTime":0.5,
@@ -67,41 +53,31 @@
     "7":{
         "type":"A4强化方块",
         "speed":10,
-        "scale":1.36,
-        "startTime":10,
-        "endTime":40,
+        "scale":1.36,        
         "bulletScale":2
     }, 
     "8":{
         "type":"B1钢铁方块",
         "speed":20,
         "scale":1.36,
-        "startTime":20,
-        "endTime":40,
         "life":4
     },
     "9":{
         "type":"B2蛇形方块",
         "speed":50,
         "scale":1.36,
-        "speedx":50,
-        "startTime":15,
-        "endTime":30,
+        "speedx":50,        
         "distance":300
     },
     "10":{
         "type":"B3缩小方块",
         "speed":50,
-        "scale":0.7,
-        "startTime":10,
-        "endTime":20
+        "scale":0.7       
     },
     "11":{
         "type":"B4隐形方块",
         "speed":50,
-        "scale":1.36,
-        "startTime":10,
-        "endTime":30,
+        "scale":1.36,       
         "blinkshow":1,
         "blinkhide":1 
     }
