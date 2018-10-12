@@ -1,4 +1,4 @@
-import Game from "./game";
+
 const { ccclass, property } = cc._decorator;
 const BrickType = cc.Enum({
     N1: 1,

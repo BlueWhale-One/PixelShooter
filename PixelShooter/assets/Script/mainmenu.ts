@@ -1,4 +1,4 @@
-import Game from "./game";
+import Game from "./levelgame";
 import Data from "./data";
 const { ccclass, property } = cc._decorator;
 
@@ -30,15 +30,20 @@ export default class Menu extends cc.Component {
         this.Item.active = true;            
     }
     
-    protected startGame() {
+    protected levelGame() {
         this.Item.active = false;
-        this.Data.getComponent(Data).setLevel();
         if (CC_WECHATGAME) {
+            cc.find('PageView2',this.Data).active=true;
             wx.getOpenDataContext().postMessage({
                 message: "levelselect"
             });
+        }else{
+            this.Data.getComponent(Data).setLevel();
         }
-        cc.find('PageView',this.Data).active=true;
+    }
+
+    protected endlessGame(){
+        cc.director.loadScene('endlessgame')
     }
 
     protected showRank(){

@@ -1,4 +1,5 @@
-import Game from "./game";
+import LevelGame from "./levelgame";
+import EndlessGame from './endlessgame';
 
 const { ccclass, property } = cc._decorator;
 const State = cc.Enum({
@@ -32,45 +33,53 @@ export default class Brick extends cc.Component {
     protected produce: boolean = true;
     public life: number = 0;
     protected dis: number = 0;
+    protected   Script:string=null;
 
     protected onLoad() {
         this.rigidbody = this.getComponent(cc.RigidBody);
         cc.director.getPhysicsManager().enabled = true;
         this.rigidbody.enabledContactListener = true;
         this.canvas = cc.find("Canvas");
+        if(this.node.parent.name=='endless'){
+           this.Script='endlessgame';
+        }else{
+           this.Script='levelgame';
+        }
     }
     protected onBeginContact(contact, self, other) {
+        
+
         if (other.node.group == 'bullet') {
             switch (this.type) {
                 case BrickType.N4: {
-                    this.canvas.getComponent(Game).addHeart();
+                    this.canvas.getComponent(this.Script).addHeart();
                 }
                     break;
                 case BrickType.N3: {
-                    this.canvas.getComponent(Game).blockBoom();
+                    this.canvas.getComponent(this.Script).blockBoom();
                 }
                     break;
                 case BrickType.A1: {
-                    this.canvas.getComponent(Game).freezeBlock(this.node.position);
-                    this.canvas.getComponent(Game).reduceBrick(self.node.position, this.type, false, this.node, this.life);
+                    this.canvas.getComponent(this.Script).freezeBlock(this.node.position);
+                    this.canvas.getComponent(this.Script).reduceBrick(self.node.position, this.type, false, this.node, this.life);
                 }
                     break;
                 case BrickType.A2: {
-                    this.canvas.getComponent(Game).flashBlock(this.node.position);
-                    this.canvas.getComponent(Game).reduceBrick(self.node.position, this.type, false, this.node, this.life);
+                    this.canvas.getComponent(this.Script).flashBlock(this.node.position);
+                    this.canvas.getComponent(this.Script).reduceBrick(self.node.position, this.type, false, this.node, this.life);
                 }
                     break;
                 case BrickType.A3: {
-                    this.canvas.getComponent(Game).boomBlock(this.node.position);
-                    this.canvas.getComponent(Game).reduceBrick(self.node.position, this.type, false, this.node, this.life);
+                    this.canvas.getComponent(this.Script).boomBlock(this.node.position);
+                    this.canvas.getComponent(this.Script).reduceBrick(self.node.position, this.type, false, this.node, this.life);
                 }
                     break;
                 case BrickType.A4: {
-                    this.canvas.getComponent(Game).powerUp();
+                    this.canvas.getComponent(this.Script).powerUp();
                 }
                     break;
                 case BrickType.B1: {
-                    this.canvas.getComponent(Game).reduceBrickLife(this.node);
+                    this.canvas.getComponent(this.Script).reduceBrickLife(this.node);
                 }
                     break;
                 default:
@@ -80,19 +89,19 @@ export default class Brick extends cc.Component {
         if (other.node.group == 'pixel') {
             switch (this.type) {
                 case BrickType.A1: {
-                    this.canvas.getComponent(Game).reduceBrick(self.node.position, this.type, true, this.node, this.life);
+                    this.canvas.getComponent(this.Script).reduceBrick(self.node.position, this.type, true, this.node, this.life);
                 }
                     break;
                 case BrickType.A2: {
-                    this.canvas.getComponent(Game).reduceBrick(self.node.position, this.type, true, this.node, this.life);
+                    this.canvas.getComponent(this.Script).reduceBrick(self.node.position, this.type, true, this.node, this.life);
                 }
                     break;
                 case BrickType.A3: {
-                    this.canvas.getComponent(Game).reduceBrick(self.node.position, this.type, true, this.node, this.life);
+                    this.canvas.getComponent(this.Script).reduceBrick(self.node.position, this.type, true, this.node, this.life);
                 }
                     break;
                 case BrickType.B1: {
-                    this.canvas.getComponent(Game).reduceBrickLife(this.node);
+                    this.canvas.getComponent(this.Script).reduceBrickLife(this.node);
                 }
                     break;
 
@@ -101,21 +110,21 @@ export default class Brick extends cc.Component {
             }
         }
         if (this.life == 0) {
-            this.canvas.getComponent(Game).Combo++;
-            this.canvas.getComponent(Game).Count += 4;
+            this.canvas.getComponent(this.Script).Combo++;
+            this.canvas.getComponent(this.Script).Count += 4;
             this.state = State.touch;
             if (this.type == BrickType.A1 || this.type == BrickType.A2 || this.type == BrickType.A3) {
 
             } else {
-                this.canvas.getComponent(Game).reduceBrick(self.node.position, this.type, true, this.node, this.life);
+                this.canvas.getComponent(this.Script).reduceBrick(self.node.position, this.type, true, this.node, this.life);
             }
 
         }
     }
     protected update(dt) {
             if (this.type == BrickType.B2) {
-                this.dis += this.canvas.getComponent(Game).BrickData[BrickType.B2].speedx * dt;
-                if (Math.abs(this.dis) >= this.canvas.getComponent(Game).BrickData[BrickType.B2].distance) {
+                this.dis += this.canvas.getComponent(this.Script).BrickData[BrickType.B2].speedx * dt;
+                if (Math.abs(this.dis) >= this.canvas.getComponent(this.Script).BrickData[BrickType.B2].distance) {
                     let speed = this.node.getComponent(cc.RigidBody).linearVelocity;
                     this.node.getComponent(cc.RigidBody).linearVelocity = cc.v2(speed.x * -1, speed.y);
                     this.dis = 0;

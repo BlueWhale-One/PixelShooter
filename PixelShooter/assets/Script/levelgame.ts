@@ -27,23 +27,7 @@ enum BrickState {
 
 
 @ccclass
-export default class Game extends cc.Component {
-    @property(cc.Prefab)
-    private CirclePrefab: cc.Prefab = null;
-    @property(cc.Prefab)
-    private Bullet: cc.Prefab = null;
-    @property(cc.Prefab)
-    private Block: cc.Prefab = null;
-    @property([cc.SpriteFrame])
-    protected star: cc.SpriteFrame[] = [];
-    @property(cc.Prefab)
-    protected LevelButton: cc.Prefab = null;
-    /**
-	 * 预制体数组
-	 * @param index 数字下标
-	 */
-    @property([cc.Prefab])
-    protected brickPrefabList: cc.Prefab[] = [];
+export default class LevelGame extends cc.Component {   
 
     protected ProcessBar: number = null;
     protected GamePause: cc.Node = null;
@@ -56,7 +40,7 @@ export default class Game extends cc.Component {
     protected Untouch: cc.Node = null;
     protected Floor: cc.Node = null;
     protected GameWin: cc.Node = null;
-    protected LevelData: cc.Node = null;
+    protected LevelData: any = null;
     protected Timer: number = 0;
     protected BrickList: cc.Node[] = [];
     protected HeartList: cc.Node[] = [];
@@ -95,6 +79,8 @@ export default class Game extends cc.Component {
 
     protected randomList = [];
     protected numList = [];
+    protected endlessData: any = null;
+    protected instance:Data=null;
 
     protected onLoad() {
         this.Combo = 0;
@@ -121,7 +107,8 @@ export default class Game extends cc.Component {
         this.LevelLabel = cc.find(`topui/levelui/levelnumber/level`, this.node).getComponent(cc.RichText);
         this.HearLabel = cc.find(`topui/heart/count`, this.node).getComponent(cc.RichText);
         this.Shoot = cc.find(`background/shoot`, this.node);
-        this.LevelData = cc.find("Data");
+        this.LevelData = cc.find("Data").getComponent(Data);        
+        this.instance=this.LevelData.instance;
         this.ProcessBar = cc.find(`topui/progress`, this.node).getComponent(cc.ProgressBar).totalLength;
         cc.director.resume();
         this.Scroll.on(cc.Node.EventType.TOUCH_START, this.initTank, this);
@@ -134,12 +121,15 @@ export default class Game extends cc.Component {
         this.Rule.active = false;
         this.BackGround.active = true;
         this.initHeart();
-        // this.setBrick();
-        this.getData();
         this.Mask.width = 0;
-        // this.ProcessBar.progress = 0;  
+        // this.setBrick();        
+        this.getData();
         this.LevelLabel.string = "<outline color=#264390 width=2>" + "Level " + (++this.Level) + "</outline>";
         this.Level--;
+
+
+        // this.ProcessBar.progress = 0;  
+
     }
     protected start() {
 
@@ -226,6 +216,7 @@ export default class Game extends cc.Component {
     * 生成新砖块
     */
     protected setBrick() {
+        let self=this;
         let length = Object.keys(this.ConfigData[this.Level].brick).length;
         let count: number = 0;
         for (let i = 0; i < length; i++) {
@@ -238,7 +229,6 @@ export default class Game extends cc.Component {
         }
         // cc.log(this.randomList);
         this.randomBrick();
-
         // cc.log(this.numList);
 
         for (let i = 0; i < this.totalBrickCount; i++) {
@@ -246,7 +236,7 @@ export default class Game extends cc.Component {
             let data = this.BrickData[j];
             // cc.log(index);
             this.scheduleOnce(function () {
-                let brick = cc.instantiate(this.brickPrefabList[j]);
+                let brick = cc.instantiate(self.instance.brickPrefabList[j]);
                 brick.parent = this.BackGround;
                 brick.scale = data.scale;
                 brick.setPosition(Math.random() * (this.BackGround.width - brick.width * 1.5 * brick.scale) + brick.width * 1.5 * brick.scale / 2, this.BackGround.height - this.TopUI.height + brick.width * 1.5);
@@ -278,6 +268,36 @@ export default class Game extends cc.Component {
                 brick.getComponent("brick").type = j;
             }.bind(this), this.ConfigData[this.Level].interval * (i + 1));
         }
+
+    }
+
+    protected endlessBrick() {
+        let length = this.BrickNameData.length;
+        let count: number = 0;
+        for (let i = 0; i < length; i++) {
+            if (this.endlessData.brick[this.BrickNameData[i]] != 0) {
+                for (let j = count; j < (this.endlessData.brick[this.BrickNameData[i]] + count); j++) {
+                    this.randomList[j] = i;
+                }
+            }
+            count = this.randomList.length;
+        }
+        console.log(this.randomList);
+    }
+
+    protected endlessGetData() {
+        cc.loader.loadRes('./endless', function (err, result) {
+            if (err) {
+                console.log(err);
+                return;
+            } else {
+                console.log(result.json);
+                this.endlessData = result.json;
+                this.endlessBrick();
+            }
+        })
+
+
 
     }
     protected getData() {
@@ -312,7 +332,6 @@ export default class Game extends cc.Component {
                                 return;
                             } else {
                                 console.log(result.json);
-
                                 this.DataConfig = result.json;
                                 this.setBrick();
                             }
@@ -330,6 +349,7 @@ export default class Game extends cc.Component {
      *  
      */
     public reduceBrick(pos: cc.Vec2, type: number, boom?: boolean, node?: cc.Node, life?: number) {
+        let self=this;
         if (life == 0) {
             if (!boom) {
                 this.scheduleOnce(function () {
@@ -346,7 +366,7 @@ export default class Game extends cc.Component {
                     let fadetime = 0;
                     let dirx = dir[i].x;
                     let diry = dir[i].y;
-                    let block = cc.instantiate(this.Block);
+                    let block = cc.instantiate(self.instance.Block);
                     block.scale = this.BrickData[type].scale;
                     block.parent = this.BackGround;
                     if (type == BrickType.B3) {
@@ -454,7 +474,8 @@ export default class Game extends cc.Component {
     /**冻结
      */
     public freezeBlock(pos: cc.Vec2) {
-        let circle = cc.instantiate(this.CirclePrefab);
+        let self=this;
+        let circle = cc.instantiate(self.instance.CirclePrefab);
         let data = this.BrickData[BrickType.A1];
         circle.parent = this.BackGround;
         circle.setContentSize(cc.size(data.startSize, data.startSize));
@@ -477,8 +498,9 @@ export default class Game extends cc.Component {
     }
     /**加速
      */
-    public flashBlock(pos: cc.Vec2) {
-        let circle = cc.instantiate(this.CirclePrefab);
+    public flashBlock(pos: cc.Vec2) {        
+        let self=this;
+        let circle = cc.instantiate(self.instance.CirclePrefab);
         let data = this.BrickData[BrickType.A2];
         circle.parent = this.BackGround;
         circle.setContentSize(cc.size(data.startSize, data.startSize));
@@ -503,7 +525,8 @@ export default class Game extends cc.Component {
     /**爆炸
      */
     public boomBlock(pos: cc.Vec2) {
-        let circle = cc.instantiate(this.CirclePrefab);
+        let self=this;
+        let circle = cc.instantiate(self.instance.CirclePrefab);
         let data = this.BrickData[BrickType.A3];
         circle.parent = this.BackGround;
         circle.setContentSize(cc.size(data.startSize, data.startSize));
@@ -552,11 +575,12 @@ export default class Game extends cc.Component {
     }
 
     protected shootBullet() {
+        let self=this;
         this.Untouch.active = true;
         this.scheduleOnce(function () {
             this.Untouch.active = false;
         }.bind(this), this.DataConfig['tank'].duration);
-        let bullet = cc.instantiate(this.Bullet);
+        let bullet = cc.instantiate(self.instance.Bullet);
         bullet.x = this.Tank.x;
         bullet.y = this.Tank.y + this.Tank.height;
         bullet.parent = this.BackGround;
@@ -573,48 +597,57 @@ export default class Game extends cc.Component {
         cc.director.pause();
     }
     protected gameAgain() {
-        cc.director.loadScene("game");
+        cc.director.loadScene("levelgame");
     }
     protected gameWin() {
+        let self=this;
         this.BackGround.active = false;
         this.TopUI.active = false;
-        this.GameWin.active = true;
-        for (let i = 0; i < 3; i++) {
-            // let star = cc.instantiate(this.Star);
-            // star.parent = cc.find(`content/star`, this.GameWin);
-            // star.setPosition(-220 + 220 * i, 49);
-            if (this.Score > this.ConfigData[this.Level].score[i]) {
-                // star.color = cc.color(255, 214, 0);
-                let str = `content/star/star_` + (i + 1);
-                cc.find(str, this.GameWin).getComponent(cc.Sprite).spriteFrame = this.star[1];
-                let starScore = JSON.parse(cc.sys.localStorage.getItem("LevelData"))[this.Level].star;
-                if (i == 1) {
-                    cc.find(str, this.GameWin).rotation = -26;
-                }
-                if (starScore < i) {
-                    this.LevelData.getComponent("data").Data[this.Level].star = i;
-                    this.LevelData.getComponent("data").setData();
-                }
-            }
-            let highScore = JSON.parse(cc.sys.localStorage.getItem("LevelData"))[this.Level].score;
-            if (highScore < this.Score) {
-                this.LevelData.getComponent("data").Data[this.Level].score = this.Score;
-                this.LevelData.getComponent("data").setData();
-            }
-            let str = `content/star/score_` + (i + 1);
-            cc.find(str, this.GameWin).getComponent(cc.Label).string = this.ConfigData[this.Level].score[i];
 
+        if (CC_WECHATGAME) {
+            cc.find('gamewin2', this.node).active = true;
+            this.setRankScore("win");
+            cc.find('content/rank', this.GameWin).getComponent(cc.WXSubContextView).enabled = false;
+        } else {
+
+            this.GameWin.active = true;
+            for (let i = 0; i < 3; i++) {
+                // let star = cc.instantiate(this.Star);
+                // star.parent = cc.find(`content/star`, this.GameWin);
+                // star.setPosition(-220 + 220 * i, 49);
+                if (this.Score > this.ConfigData[this.Level].score[i]) {
+                    // star.color = cc.color(255, 214, 0);
+                    let str = `content/star/star_` + (i + 1);
+                    cc.find(str, this.GameWin).getComponent(cc.Sprite).spriteFrame = self.instance.star[1];
+                    let starScore = JSON.parse(cc.sys.localStorage.getItem("LevelData"))[this.Level].star;
+                    if (i == 1) {
+                        cc.find(str, this.GameWin).rotation = -26;
+                    }
+                    if (starScore < i) {
+                        this.LevelData.Data[this.Level].star = i;
+                        this.LevelData.setData();
+                    }
+                }
+                let highScore = JSON.parse(cc.sys.localStorage.getItem("LevelData"))[this.Level].score;
+                if (highScore < this.Score) {
+                    this.LevelData.Data[this.Level].score = this.Score;
+                    this.LevelData.setData();
+                }
+                let str = `content/star/score_` + (i + 1);
+                cc.find(str, this.GameWin).getComponent(cc.Label).string = this.ConfigData[this.Level].score[i];
+                let highscore = JSON.parse(cc.sys.localStorage.getItem("LevelData"))[this.Level].score;
+                cc.find(`content/highscore`, this.GameWin).getComponent(cc.RichText).string = "<outline color=#3A230A width=5>" + highscore + "</outline>";
+                cc.find(`content/score`, this.GameWin).getComponent(cc.RichText).string = "<outline color=#3A230A width=5>" + this.Score + "</outline>";
+            }
         }
         /* if (this.Level == 21) {
             cc.find(`conten/nextbutton`, this.GameWin).active = false;
         } */
-        let highscore = JSON.parse(cc.sys.localStorage.getItem("LevelData"))[this.Level].score;
+
 
         // this.setRankScore("win");
         // cc.find('content/rank', this.GameWin).getComponent(cc.WXSubContextView).enabled = false;
         // this.setRank();
-        cc.find(`content/highscore`, this.GameWin).getComponent(cc.RichText).string = "<outline color=#3A230A width=5>" + highscore + "</outline>";
-        cc.find(`content/score`, this.GameWin).getComponent(cc.RichText).string = "<outline color=#3A230A width=5>" + this.Score + "</outline>";
 
     }
     protected tex;
@@ -679,23 +712,25 @@ export default class Game extends cc.Component {
         this.BackGround.active = false;
         this.TopUI.active = false;
         this.GameOver.active = true;
-        for (let i = 0; i < 3; i++) {
-            let highScore = JSON.parse(cc.sys.localStorage.getItem("LevelData"))[this.Level].score;
-            if (highScore < this.Score) {
-                this.LevelData.getComponent("data").Data[this.Level].score = this.Score;
-                this.LevelData.getComponent("data").setData();
+        if (CC_WECHATGAME) {
+            cc.find('gameover2', this.node).active = true;
+            this.setRankScore("over");
+            cc.find('content/rank', this.GameOver).getComponent(cc.WXSubContextView).enabled = false;
+        } else {
+            for (let i = 0; i < 3; i++) {
+                let highScore = JSON.parse(cc.sys.localStorage.getItem("LevelData"))[this.Level].score;
+                if (highScore < this.Score) {
+                    this.LevelData.Data[this.Level].score = this.Score;
+                    this.LevelData.setData();
+                }
+                let str = `content/star/score_` + (i + 1);
+                cc.find(str, this.GameOver).getComponent(cc.Label).string = this.ConfigData[this.Level].score[i];
             }
-            let str = `content/star/score_` + (i + 1);
-            cc.find(str, this.GameOver).getComponent(cc.Label).string = this.ConfigData[this.Level].score[i];
+            let highscore = JSON.parse(cc.sys.localStorage.getItem("LevelData"))[this.Level].score;
+            // this.setRank();
+            cc.find(`content/highscore`, this.GameOver).getComponent(cc.RichText).string = "<outline color=#3A230A width=5>" + highscore + "</outline>";
+            cc.find(`content/score`, this.GameOver).getComponent(cc.RichText).string = "<outline color=#3A230A width=5>" + this.Score + "</outline>";
         }
-        let highscore = JSON.parse(cc.sys.localStorage.getItem("LevelData"))[this.Level].score;
-
-        // this.setRankScore("over");
-        // cc.find('content/rank', this.GameWin).getComponent(cc.WXSubContextView).enabled = false;
-        // this.setRank();
-        cc.find(`content/highscore`, this.GameOver).getComponent(cc.RichText).string = "<outline color=#3A230A width=5>" + highscore + "</outline>";
-        cc.find(`content/score`, this.GameOver).getComponent(cc.RichText).string = "<outline color=#3A230A width=5>" + this.Score + "</outline>";
-
     }
     protected backToMenu() {
         this.BackGround.active = false;
@@ -704,7 +739,7 @@ export default class Game extends cc.Component {
         this.GamePause.active = false;
         this.GameWin.active = false;
         this.GameOver.active = false;
-        this.LevelData.getComponent(Data).returnLevel();
+        this.LevelData.returnLevel();
         /* if (!this.isLoading) {
             this.isLoading = true;
             cc.director.loadScene("mainmenu");
@@ -713,7 +748,7 @@ export default class Game extends cc.Component {
     }
     protected nextLevel() {
         cc.sys.localStorage.setItem('level', ++this.Level);
-        cc.director.loadScene("game");
+        cc.director.loadScene("levelgame");
     }
     protected gamePause() {
         cc.director.pause();
@@ -729,6 +764,7 @@ export default class Game extends cc.Component {
     // protected loadData:boolean=false; 
 
     protected update(dt) {
+        let self=this;
         this.Timer += dt;
         let score = 0;
         score = 5 * this.Combo * (this.Combo + 1);
@@ -773,13 +809,13 @@ export default class Game extends cc.Component {
             if (this.Mask.width < this.ProcessBar) {
                 this.Mask.width = (this.Score / this.ConfigData[this.Level].score[0]) * 0.4 * this.ProcessBar;
                 if (this.Mask.width >= (0.4 * this.ProcessBar)) {
-                    cc.find(`topui/progress/star_1`, this.node).getComponent(cc.Sprite).spriteFrame = this.star[0];
+                    cc.find(`topui/progress/star_1`, this.node).getComponent(cc.Sprite).spriteFrame =self.instance.star[0];
                     this.Mask.width = (((this.Score - this.ConfigData[this.Level].score[0]) / (this.ConfigData[this.Level].score[1] - this.ConfigData[this.Level].score[0])) * 0.3 + 0.4) * this.ProcessBar;
                     if (this.Mask.width >= (0.7 * this.ProcessBar)) {
-                        cc.find(`topui/progress/star_2`, this.node).getComponent(cc.Sprite).spriteFrame = this.star[0];
+                        cc.find(`topui/progress/star_2`, this.node).getComponent(cc.Sprite).spriteFrame = self.instance.star[0];
                         this.Mask.width = (((this.Score - this.ConfigData[this.Level].score[1]) / (this.ConfigData[this.Level].score[2] - this.ConfigData[this.Level].score[1])) * 0.3 + 0.7) * this.ProcessBar;
                         if (this.Mask.width >= this.ProcessBar) {
-                            cc.find(`topui/progress/star_3`, this.node).getComponent(cc.Sprite).spriteFrame = this.star[0];
+                            cc.find(`topui/progress/star_3`, this.node).getComponent(cc.Sprite).spriteFrame = self.instance.star[0];
                             this.Mask.width = this.ProcessBar;
                         }
                     }
