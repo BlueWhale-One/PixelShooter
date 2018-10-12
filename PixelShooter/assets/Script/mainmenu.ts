@@ -33,6 +33,16 @@ export default class Menu extends cc.Component {
     protected startGame() {
         this.Item.active = false;
         this.Data.getComponent(Data).setLevel();
+        if (CC_WECHATGAME) {
+            wx.getOpenDataContext().postMessage({
+                message: "levelselect"
+            });
+        }
+        cc.find('PageView',this.Data).active=true;
+    }
+
+    protected showRank(){
+        this.Data.getComponent(Data).showRank();
     }
     
 }

@@ -42,13 +42,14 @@ export default class Data extends cc.Component {
         }
         this.Item = cc.find(`Canvas/background/item`);
         this.Back = cc.find(`Canvas/background/back`);
-        this.ProgressBar = cc.find(`Canvas/background/progress`);
+        // this.ProgressBar = cc.find(`Canvas/background/progress`);
         this.LevelView = cc.find(`PageView`, this.node);
         this.LastPage = cc.find(`lastpage`, this.LevelView).getComponent(cc.Sprite);
         this.NextPage = cc.find(`nextpage`, this.LevelView).getComponent(cc.Sprite);
         this.ChildCount = cc.find(`view/content`, this.LevelView).children.length;
         this.LevelView.active = false;
         this.Data = JSON.parse(cc.sys.localStorage.getItem("LevelData"));
+        // cc.find('menubutton',this.node).active=false;        
     }
     public setData() {
         cc.sys.localStorage.setItem("LevelData", JSON.stringify(this.Data));
@@ -82,7 +83,7 @@ export default class Data extends cc.Component {
         // cc.log(this.LevelView.getComponent(cc.PageView).getCurrentPageIndex());
     }
     public returnLevel() {
-        this.LevelView.getComponent(cc.PageView).setCurrentPageIndex(0);
+        // this.LevelView.getComponent(cc.PageView).setCurrentPageIndex(0);
         this.LevelView.active = true;
         this.setLevel();
     }
@@ -94,21 +95,21 @@ export default class Data extends cc.Component {
 
     protected onLoading(completedCount: number, totalCount: number, itme: any) {
         this.ProgressBar.getComponent(cc.ProgressBar).progress = completedCount / totalCount;
-    }
+    }   
 
-    protected showRank() {
-
-        // this.rank.active = true;
+    public showRank() {
         this.LevelView.active=false;
+        this.Item.active=false;
+        cc.find('menubutton',this.node).active=true;
+        // this.rank.getComponent(cc.WXSubContextView).enabled=false;
         // let rank = new cc.Texture2D;
         // let openDataContext = wx.getOpenDataContext()
         // let sharedCanvas = openDataContext.canvas;
         // rank.initWithElement(sharedCanvas);
         // rank.handleLoadedTexture();
         // this.rank.getComponent(cc.Sprite).spriteFrame=new cc.SpriteFrame(rank); 
-        
-      /*   wx.postMessage({ message:'show'});
-
+       
+ /*
         let list: [{
             key: 'score',
             value: 100
@@ -125,8 +126,8 @@ export default class Data extends cc.Component {
     }
 
     public setLevel() {
-        this.LevelView.active = true;
-        this.LastPage.spriteFrame = this.ButtonList[0];
+        this.LevelView.active = true;        
+         this.LastPage.spriteFrame = this.ButtonList[0];
         this.NextPage.spriteFrame = this.ButtonList[4];
         this.LevelView.getComponent(cc.PageView).setCurrentPageIndex(0);
         for (let i = 0; i < this.ChildCount; i++) {
@@ -198,7 +199,7 @@ export default class Data extends cc.Component {
                 }.bind(this))
             }
         }
-
+ 
     }
 
 }

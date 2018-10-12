@@ -56,8 +56,8 @@
     },
     "_position": {
       "__type__": "cc.Vec3",
-      "x": -272.1,
-      "y": 269,
+      "x": 0,
+      "y": 0,
       "z": 0
     },
     "_scale": {
@@ -243,7 +243,7 @@
     "_isTrimmedMode": true,
     "_state": 0,
     "_atlas": null,
-    "_id": "54ByQeHOFDD6/QY5Eazu1O"
+    "_id": "02tjGkv1ZBQaVQJk0zJ/6E"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -345,7 +345,7 @@
     "_isTrimmedMode": true,
     "_state": 0,
     "_atlas": null,
-    "_id": "d3NgCltYBCt7VQYMhC7KMe"
+    "_id": "c85KT+5SpM8oBXNwD3a4R5"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -447,7 +447,7 @@
     "_isTrimmedMode": true,
     "_state": 0,
     "_atlas": null,
-    "_id": "d1E4/sFZ5FLrhwzKabBsbO"
+    "_id": "cbOdn4Cp1K0bsDB5HfD++G"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -486,7 +486,7 @@
     "_isTrimmedMode": true,
     "_state": 0,
     "_atlas": null,
-    "_id": "aaPPpJQWZAxYTlKGoxzkbm"
+    "_id": "c47dvN0R1Gbauup7mzJbRY"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -588,7 +588,7 @@
     "_isTrimmedMode": true,
     "_state": 0,
     "_atlas": null,
-    "_id": "d0lzw4vDNC7Kkn5Ml9WQk3"
+    "_id": "9eeEGorqZJIITGEGihEpzs"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -757,7 +757,7 @@
     "_N$verticalAlign": 1,
     "_N$fontFamily": "Arial",
     "_N$overflow": 0,
-    "_id": "0c9ijG+w9NMoS0gh1IzKMr"
+    "_id": "8cbarTndBNTJMqrzSMAkqx"
   },
   {
     "__type__": "cc.LabelOutline",
@@ -775,7 +775,7 @@
       "a": 255
     },
     "_width": 6,
-    "_id": "30YsQLWjFAyL+CXksgI6Wp"
+    "_id": "dah2DPzc1OJa3w4DnUBtrJ"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -785,7 +785,7 @@
     "asset": {
       "__uuid__": "d3599192-7143-49dc-bf0d-5a3df0b448fd"
     },
-    "fileId": "4dDPY9BdxHR7trTUNhceuL",
+    "fileId": "55kchOIx1O45S2GE3bE5FI",
     "sync": false
   },
   {
@@ -804,7 +804,7 @@
     "_N$lineHeight": 80,
     "_N$imageAtlas": null,
     "_N$handleTouchEvent": true,
-    "_id": "71MZi+ArRNJqQiE9rSAn/m"
+    "_id": "2aFiQlgfxBJZekbYqct6uu"
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -841,7 +841,7 @@
     "_isTrimmedMode": true,
     "_state": 0,
     "_atlas": null,
-    "_id": "b3dd5VPNVKLo8qYFRR3wGx"
+    "_id": "a0ObDvTVVKfIKXJvwIq/ow"
   },
   {
     "__type__": "cc.PrefabInfo",

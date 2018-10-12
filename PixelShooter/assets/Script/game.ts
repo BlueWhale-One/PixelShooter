@@ -132,6 +132,7 @@ export default class Game extends cc.Component {
         this.GameWin.active = false;
         this.GamePause.active = false;
         this.Rule.active = false;
+        this.BackGround.active = true;
         this.initHeart();
         // this.setBrick();
         this.getData();
@@ -190,7 +191,7 @@ export default class Game extends cc.Component {
 
     protected reduceHeart() {
         this.HeartCount--;
-        console.log(this.HeartCount);
+        // console.log(this.HeartCount);
         // this.HeartList[this.HeartCount].destroy();
         // this.HeartList.splice(this.HeartCount, 1);
         this.HearLabel.string = "<outline color=#42350F width=2>" + this.HeartCount + "</outline>";
@@ -260,7 +261,7 @@ export default class Game extends cc.Component {
                         brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(data.speedx * a, -(this.ConfigData[this.Level].speed * data.speed));
                     }
                 } else if (j == BrickType.B3) {
-                    brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.ConfigData[this.Level].speed * 1.5 * data.speed));
+                    brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.ConfigData[this.Level].speed * data.speedUp * data.speed));
                 } else {
                     brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.ConfigData[this.Level].speed * data.speed));
                 }
@@ -286,40 +287,43 @@ export default class Game extends cc.Component {
                 return;
             } else {
                 console.log(result.json);
+                this.ConfigData = result.json;
+
+                cc.loader.loadRes("./brick", function (err, result) {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    } else {
+                        console.log(result.json);
+                        this.BrickData = result.json;
+                        let arr = Object.keys(this.BrickData).length;
+                        for (let i = 0; i < arr; i++) {
+                            this.BrickNameData[i] = this.BrickData[i].type;
+                            // cc.log(this.BrickNameData);
+                        }
+                        let length = Object.keys(this.ConfigData[this.Level].brick).length;
+                        for (let j = 0; j < length; j++) {
+                            this.totalBrickCount += this.ConfigData[this.Level].brick[this.BrickNameData[j]];
+                        }
+
+                        cc.loader.loadRes("./config", function (err, result) {
+                            if (err) {
+                                console.log(err);
+                                return;
+                            } else {
+                                console.log(result.json);
+
+                                this.DataConfig = result.json;
+                                this.setBrick();
+                            }
+                        }.bind(this));
+
+                    }
+                }.bind(this));
             }
-            this.ConfigData = result.json;
 
         }.bind(this));
 
-        cc.loader.loadRes("./brick", function (err, result) {
-            if (err) {
-                console.log(err);
-                return;
-            } else {
-                console.log(result.json);
-                this.BrickData = result.json;
-                let arr = Object.keys(this.BrickData).length;
-                for (let i = 0; i < arr; i++) {
-                    this.BrickNameData[i] = this.BrickData[i].type;
-                    // cc.log(this.BrickNameData);
-                }
-                let length = Object.keys(this.ConfigData[this.Level].brick).length;
-                for (let j = 0; j < length; j++) {
-                    this.totalBrickCount += this.ConfigData[this.Level].brick[this.BrickNameData[j]];
-                }
-
-                this.setBrick();
-            }
-        }.bind(this));
-        cc.loader.loadRes("./config", function (err, result) {
-            if (err) {
-                console.log(err);
-                return;
-            } else {
-                console.log(result.json);
-            }
-            this.DataConfig = result.json;
-        }.bind(this));
     }
     /**
      * 产生小方块
@@ -574,6 +578,7 @@ export default class Game extends cc.Component {
     protected gameWin() {
         this.BackGround.active = false;
         this.TopUI.active = false;
+        this.GameWin.active = true;
         for (let i = 0; i < 3; i++) {
             // let star = cc.instantiate(this.Star);
             // star.parent = cc.find(`content/star`, this.GameWin);
@@ -604,9 +609,71 @@ export default class Game extends cc.Component {
             cc.find(`conten/nextbutton`, this.GameWin).active = false;
         } */
         let highscore = JSON.parse(cc.sys.localStorage.getItem("LevelData"))[this.Level].score;
+
+        // this.setRankScore("win");
+        // cc.find('content/rank', this.GameWin).getComponent(cc.WXSubContextView).enabled = false;
+        // this.setRank();
         cc.find(`content/highscore`, this.GameWin).getComponent(cc.RichText).string = "<outline color=#3A230A width=5>" + highscore + "</outline>";
         cc.find(`content/score`, this.GameWin).getComponent(cc.RichText).string = "<outline color=#3A230A width=5>" + this.Score + "</outline>";
-        this.GameWin.active = true;
+
+    }
+    protected tex;
+
+    protected setRank() {
+        this.tex = new cc.Texture2D();
+        let openDataContext = wx.getOpenDataContext();
+        let sharedCanvas = openDataContext.canvas;
+        sharedCanvas.width = 800;
+        sharedCanvas.height = 500;
+
+        // let canvas = wx.creatCanvas();
+        // let context = canvas.getContext('2d');
+        // // sharedCanvas.width = 800;
+        // // sharedCanvas.height = 500;
+        // context.drawImage(sharedCanvas, 0, 0);
+
+        this.tex.initWithElement(sharedCanvas);
+        this.tex.handleLoadedTexture();
+        this.GameOver.getComponent(cc.Sprite).spriteFrame = new cc.SpriteFrame(this.tex);
+        console.log(this.tex);
+
+
+    }
+    protected hideRank() {
+        this.GameOver.active = false;
+        /* 
+                   if(CC_WECHATGAME){
+                    wx.getOpenDataContext().postMessage({
+                        message: "show"                
+                    });
+                   } */
+    }
+
+    protected setRankScore(type: string) {
+        let self = this;
+        let scoreList = [self.ConfigData[self.Level].score[0], self.ConfigData[self.Level].score[1], self.ConfigData[self.Level].score[2]]
+        if (CC_WECHATGAME) {
+            wx.getOpenDataContext().postMessage({
+                message: type,
+                level: {
+                    index: self.Level,
+                    scoreList: scoreList,
+                    score: self.Score
+                }
+            });
+
+            /*  wx.setUserCloudStorage({
+                 KVDataList: list,
+                 success(res) {
+                     console.log(res);
+                    
+                 },
+                 fail(res) {
+                     console.log(res);
+                 }
+             }) */
+        }
+
     }
     protected gameOver() {
         this.BackGround.active = false;
@@ -622,6 +689,10 @@ export default class Game extends cc.Component {
             cc.find(str, this.GameOver).getComponent(cc.Label).string = this.ConfigData[this.Level].score[i];
         }
         let highscore = JSON.parse(cc.sys.localStorage.getItem("LevelData"))[this.Level].score;
+
+        // this.setRankScore("over");
+        // cc.find('content/rank', this.GameWin).getComponent(cc.WXSubContextView).enabled = false;
+        // this.setRank();
         cc.find(`content/highscore`, this.GameOver).getComponent(cc.RichText).string = "<outline color=#3A230A width=5>" + highscore + "</outline>";
         cc.find(`content/score`, this.GameOver).getComponent(cc.RichText).string = "<outline color=#3A230A width=5>" + this.Score + "</outline>";
 
@@ -674,7 +745,11 @@ export default class Game extends cc.Component {
                 this.reduceHeart();
                 if (this.BrickNumber == this.totalBrickCount) {
                     if (this.BrickList.length == 0) {
-                        this.gameWin();
+                        if (this.Score < this.ConfigData[this.Level].score[0]) {
+                            this.gameOver();
+                        } else {
+                            this.gameWin();
+                        }
                     }
                 }
             } else {
@@ -684,7 +759,11 @@ export default class Game extends cc.Component {
                     this.BrickList.splice(i, 1);
                     if (this.BrickNumber == this.totalBrickCount) {
                         if (this.BrickList.length == 0) {
-                            this.gameWin();
+                            if (this.Score < this.ConfigData[this.Level].score[0]) {
+                                this.gameOver();
+                            } else {
+                                this.gameWin();
+                            }
                         }
                     }
                 }
