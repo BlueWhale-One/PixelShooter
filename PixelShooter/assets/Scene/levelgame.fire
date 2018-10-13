@@ -1623,7 +1623,7 @@
     "_skewY": 0,
     "_zIndex": 0,
     "groupIndex": 0,
-    "_id": "dcyzM0NE9Li51bb6wz+Uzq"
+    "_id": "66jEDaXItC8LYpA1uNNrgo"
   },
   {
     "__type__": "cc.Label",
@@ -1650,7 +1650,7 @@
     "_N$verticalAlign": 1,
     "_N$fontFamily": "Arial",
     "_N$overflow": 0,
-    "_id": "0e6fDkdhpCLbEgj3FmZ34q"
+    "_id": "2dAM1Y/31CCrqaQxLzkABk"
   },
   {
     "__type__": "cc.LabelOutline",
@@ -1668,7 +1668,7 @@
       "a": 255
     },
     "_width": 2,
-    "_id": "2aW6yeWTFNKKt/ybBjuvhP"
+    "_id": "473IZQRStNXo48XXj7OEGJ"
   },
   {
     "__type__": "cc.RichText",
@@ -2580,7 +2580,7 @@
     "_skewY": 0,
     "_zIndex": 0,
     "groupIndex": 0,
-    "_id": "e5Za3P4ixGJq18D6mGKDHU"
+    "_id": "daXMvBwYBF74goJCB4PD7b"
   },
   {
     "__type__": "cc.Label",
@@ -2607,7 +2607,7 @@
     "_N$verticalAlign": 1,
     "_N$fontFamily": "Arial",
     "_N$overflow": 0,
-    "_id": "eeIMuR/ehLjIpd5/Gpa76h"
+    "_id": "79SsC6wqlDY7zZyaPezDRd"
   },
   {
     "__type__": "cc.LabelOutline",
@@ -2625,7 +2625,7 @@
       "a": 255
     },
     "_width": 4,
-    "_id": "46cl66k/tMoayGV0SVvg//"
+    "_id": "6aMzG2+KdKl5HH1SmZS6jw"
   },
   {
     "__type__": "cc.RichText",
@@ -2938,7 +2938,7 @@
     "_skewY": 0,
     "_zIndex": 0,
     "groupIndex": 0,
-    "_id": "0a3Z+FhCpFm7W1scErLd9X"
+    "_id": "83TWQLZOpOBKrUqw4RCSDp"
   },
   {
     "__type__": "cc.Label",
@@ -2965,7 +2965,7 @@
     "_N$verticalAlign": 1,
     "_N$fontFamily": "Arial",
     "_N$overflow": 0,
-    "_id": "daQWkhXIBMiYf2iJJglIWg"
+    "_id": "9ajMi/OMxOrqdfMsnEw+/s"
   },
   {
     "__type__": "cc.LabelOutline",
@@ -2983,7 +2983,7 @@
       "a": 255
     },
     "_width": 4,
-    "_id": "21keNWWKVKQJCAOeGfPiil"
+    "_id": "34TGtq6qJKEoeD0bfemBL+"
   },
   {
     "__type__": "cc.RichText",
@@ -3319,7 +3319,7 @@
     "_skewY": 0,
     "_zIndex": 0,
     "groupIndex": 0,
-    "_id": "d1SK56XspLApgZzZ61lOtG"
+    "_id": "33I/vcyNlBzLSRMn/0DwtK"
   },
   {
     "__type__": "cc.Label",
@@ -3346,7 +3346,7 @@
     "_N$verticalAlign": 1,
     "_N$fontFamily": "Arial",
     "_N$overflow": 0,
-    "_id": "40c+39bplCoJs1FWl0Hp5Q"
+    "_id": "bd9DPo8HJC/6+I81+1W+zD"
   },
   {
     "__type__": "cc.LabelOutline",
@@ -3364,7 +3364,7 @@
       "a": 255
     },
     "_width": 2,
-    "_id": "afwAHT9+NIwa76WeDXqFkq"
+    "_id": "7c50R77RtJepU5GPxNlv3D"
   },
   {
     "__type__": "cc.RichText",
@@ -3452,7 +3452,7 @@
         "__id__": 84
       }
     ],
-    "_active": false,
+    "_active": true,
     "_level": 2,
     "_components": [
       {
@@ -3737,7 +3737,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "nextbutton",
+    "_name": "menubutton",
     "_objFlags": 0,
     "_parent": {
       "__id__": 84
@@ -11356,64 +11356,6 @@
       "__id__": 2
     },
     "_enabled": true,
-    "CirclePrefab": {
-      "__uuid__": "4579809a-d835-4f78-9fe4-d058121a4339"
-    },
-    "Bullet": {
-      "__uuid__": "a8692718-8bc5-461d-8315-7c2d94f6d87e"
-    },
-    "Block": {
-      "__uuid__": "11f2578b-4b32-43a4-bbc7-4303aab94f89"
-    },
-    "star": [
-      {
-        "__uuid__": "d858a575-7b04-4b8b-8cf3-10786bd569e9"
-      },
-      {
-        "__uuid__": "d522adcc-1b2f-4524-8aab-b71e6261d6de"
-      }
-    ],
-    "LevelButton": {
-      "__uuid__": "d3599192-7143-49dc-bf0d-5a3df0b448fd"
-    },
-    "brickPrefabList": [
-      {
-        "__uuid__": "36492698-d462-4c69-bd7f-ca655eb1f98b"
-      },
-      {
-        "__uuid__": "b1f01f90-cf1c-462a-b566-94a1ebc2ec49"
-      },
-      {
-        "__uuid__": "d91294e4-80f5-49a2-adca-a8d7bb6f9e48"
-      },
-      {
-        "__uuid__": "63e90ce3-24c7-4e9a-9778-d6fc1e9ad19b"
-      },
-      {
-        "__uuid__": "1a47ad96-16a1-4854-b56a-fe58259b3ad5"
-      },
-      {
-        "__uuid__": "ec32ff18-a612-435f-a5fe-409e924677bf"
-      },
-      {
-        "__uuid__": "0ac86b7b-e43a-4a5c-89c6-ba00974d11fa"
-      },
-      {
-        "__uuid__": "04b6b7bf-93ff-4c5f-957b-66b6354c00e2"
-      },
-      {
-        "__uuid__": "586eba8a-1578-4127-bf6e-0556a261f747"
-      },
-      {
-        "__uuid__": "c3cfe983-e660-47db-817f-ebcfa5b16921"
-      },
-      {
-        "__uuid__": "14bf06c3-1015-4699-b6ad-52ebd1bfa3f9"
-      },
-      {
-        "__uuid__": "78436a62-229b-40cf-8ea2-07050a7c086b"
-      }
-    ],
     "_id": "45sijGtFJKN53bbdfnHk3L"
   },
   {

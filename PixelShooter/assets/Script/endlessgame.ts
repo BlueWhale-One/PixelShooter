@@ -77,8 +77,6 @@ export default class EndlessGame extends cc.Component {
     protected instance: Data = null;
 
 
-
-
     protected onLoad() {
         this.instance = cc.find('Data').getComponent(Data);
         cc.director.getPhysicsManager().enabled = true;
@@ -94,8 +92,9 @@ export default class EndlessGame extends cc.Component {
         this.GamePause = cc.find(`gamepause`, this.node);
         this.GameOver = cc.find(`gameover`, this.node);
         this.HearLabel = cc.find(`topui/heart/count`, this.node).getComponent(cc.RichText);
-        this.ScoreLabel = cc.find(`topui/levelui/score/label`, this.node).getComponent(cc.RichText);       
-        this.LevelData = cc.find("Data").getComponent(Data);  
+        this.ScoreLabel = cc.find(`topui/levelui/score/label`, this.node).getComponent(cc.RichText);
+        this.LevelData = cc.find("Data").getComponent(Data);
+
         this.GameOver.active = false;
         this.GamePause.active = false;
         this.Rule.active = false;
@@ -130,131 +129,6 @@ export default class EndlessGame extends cc.Component {
     }
     protected initHeart() {
         this.HearLabel.string = "<outline color=#42350F width=2>" + this.HeartCount + "</outline>";
-    }
-    public addHeart() {
-        if (this.HeartCount < 5) {
-            this.HeartCount++;
-            this.HearLabel.string = "<outline color=#42350F width=2>" + this.HeartCount + "</outline>";
-        }
-    }
-
-    protected reduceHeart() {
-        this.HeartCount--;
-        this.HearLabel.string = "<outline color=#42350F width=2>" + this.HeartCount + "</outline>";
-        if (this.HeartCount == 0) {
-            this.gameOver();
-
-        }
-    }
-
-    /**全消除
-    */
-    public blockBoom() {
-        let count = this.BrickList.length;
-        this.Count += count * 4;
-        this.Combo += count;
-        for (let i = 0; i < count; i++) {
-            if (this.BrickList[i].getComponent("brick").state == BrickState.move) {
-                this.BrickList[i].getComponent("brick").state = BrickState.touch;
-                this.BrickList[i].getComponent("brick").life = 0;
-                this.reduceBrick(this.BrickList[i].position, this.BrickList[i].getComponent('brick').type, true, this.BrickList[i], this.BrickList[i].getComponent('brick').life);
-            }
-        }
-    }
-    /**冻结
-     */
-    public freezeBlock(pos: cc.Vec2) {
-        let self = this;
-        let circle = cc.instantiate(self.instance.CirclePrefab);
-        let data = this.BrickData[BrickType.A1];
-        circle.parent = this.BackGround;
-        circle.setContentSize(cc.size(data.startSize, data.startSize));
-        circle.setPosition(pos);
-        circle.zIndex = -1;
-        circle.opacity = 120;
-        circle.color = cc.color(56, 176, 233);
-        let fun1 = cc.callFunc(function () {
-            for (let i = 0; i < this.BrickList.length; i++) {
-                let dis = Math.abs(this.BrickList[i].position.sub(pos).mag());
-                if (dis <= data.range) {
-                    this.BrickList[i].getComponent(cc.RigidBody).linearVelocity = cc.v2(0, 0);
-                }
-            }
-        }, this)
-        let fun2 = cc.callFunc(function () {
-            circle.removeFromParent();
-        }, this)
-        circle.runAction(cc.sequence(cc.scaleTo(data.scaleTime, data.range * 2 / data.startSize), fun1, cc.delayTime(data.delayTime), cc.fadeOut(data.fadeTime), fun2));
-    }
-    /**加速
-     */
-    public flashBlock(pos: cc.Vec2) {
-        let self = this;
-        let circle = cc.instantiate(self.instance.CirclePrefab);
-        let data = this.BrickData[BrickType.A2];
-        circle.parent = this.BackGround;
-        circle.setContentSize(cc.size(data.startSize, data.startSize));
-        circle.setPosition(pos);
-        circle.zIndex = -1;
-        circle.opacity = 120;
-        circle.color = cc.color(241, 241, 132);
-        let fun1 = cc.callFunc(function () {
-            for (let i = 0; i < this.BrickList.length; i++) {
-                let dis = Math.abs(this.BrickList[i].position.sub(pos).mag());
-                if (dis <= data.range) {
-                    let speed = this.BrickList[i].getComponent(cc.RigidBody).linearVelocity;
-                    this.BrickList[i].getComponent(cc.RigidBody).linearVelocity = cc.v2(0, speed.y - data.speedUp);
-                }
-            }
-        }, this)
-        let fun2 = cc.callFunc(function () {
-            circle.removeFromParent();
-        }, this)
-        circle.runAction(cc.sequence(cc.scaleTo(data.scaleTime, data.range * 2 / data.startSize), fun1, cc.delayTime(data.delayTime), cc.fadeOut(data.fadeTime), fun2));
-    }
-    /**爆炸
-     */
-    public boomBlock(pos: cc.Vec2) {
-        let self = this;
-        let circle = cc.instantiate(self.instance.CirclePrefab);
-        let data = this.BrickData[BrickType.A3];
-        circle.parent = this.BackGround;
-        circle.setContentSize(cc.size(data.startSize, data.startSize));
-        circle.setPosition(pos);
-        circle.zIndex = -1;
-        circle.opacity = 120;
-        circle.color = cc.color(51, 51, 48);
-        let fun1 = cc.callFunc(function () {
-            for (let i = 0; i < this.BrickList.length; i++) {
-                let dis = Math.abs(this.BrickList[i].position.sub(pos).mag());
-                if (dis <= data.range) {
-                    if (this.BrickList[i].getComponent("brick").state == BrickState.move) {
-                        this.Count += 4;
-                        this.Combo++;
-                        this.BrickList[i].getComponent("brick").state = BrickState.touch;
-                        this.BrickList[i].getComponent("brick").life = 0;
-                        this.reduceBrick(this.BrickList[i].position, this.BrickList[i].getComponent('brick').type, true, this.BrickList[i], this.BrickList[i].getComponent('brick').life);
-                    }
-                }
-            }
-        }, this)
-        let fun2 = cc.callFunc(function () {
-            circle.removeFromParent();
-        }, this)
-        circle.runAction(cc.sequence(cc.scaleTo(data.scaleTime, data.range * 2 / data.startSize), fun1, cc.delayTime(data.delayTime), cc.fadeOut(data.fadeTime), fun2));
-    }
-
-    public reduceBrickLife(node: cc.Node) {
-        node.getComponent(Brick).life--;
-    }
-
-    public powerUp() {
-        this._powerUp = true;
-        let powerLabel = cc.find(`power`, this.BackGround);
-        powerLabel.active = true;
-        powerLabel.runAction(cc.sequence(cc.blink(0.5, 5), cc.callFunc(function () {
-            powerLabel.active = false;
-        })))
     }
 
     protected shootBullet() {
@@ -332,147 +206,57 @@ export default class EndlessGame extends cc.Component {
         let random = Math.floor(Math.random() * 100);
         let j = this.randomList[random];
         let data = this.BrickData[j];
-        let brick = cc.instantiate(self.instance.brickPrefabList[j]);
-        brick.parent = this.BackGround;
-        brick.scale = data.scale;
-        brick.setPosition(Math.random() * (this.BackGround.width - brick.width * 1.5 * brick.scale) + brick.width * 1.5 * brick.scale / 2, this.BackGround.height - this.TopUI.height + brick.width * 1.5);
-        this.BrickList.push(brick);
-        this.BrickCount++;
-        this.BrickNumber++;
-        brick.getComponent("brick").type = j;
-        if (j == BrickType.B2) {
-            if (brick.position.x <= (data.distance + brick.width * 1.5 * brick.scale)) {
-                brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(data.speedx, -(this.speed));
-            } else if (brick.position.x >= this.BackGround.width - (data.distance + brick.width * 1.5 * brick.scale)) {
-                brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(-data.speedx, -(this.speed));
-            } else {
-                let arr = [-1, 1];
-                let a = arr[Math.round(Math.random())];
-                brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(data.speedx * a, -(this.speed));
+        let count: number = 0;
+        for (let i = 0; i < this.BrickList.length; i++) {
+            if (this.BrickList[i].getComponent(Brick).type == j) {
+                count++;
             }
-        } else if (j == BrickType.B3) {
-            brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.speed * data.speedUp));
+        }
+        if (count >= this.endlessData.brick[this.BrickNameData[j]].max) {
+            this.setBrick();
         } else {
-            brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.speed));
-        }
+            let brick = cc.instantiate(self.instance.brickPrefabList[j]);
+            brick.parent = this.BackGround;
+            brick.scale = data.scale;
+            brick.setPosition(Math.random() * (this.BackGround.width - brick.width * 1.5 * brick.scale) + brick.width * 1.5 * brick.scale / 2, this.BackGround.height - this.TopUI.height + brick.width * 1.5 * brick.scale / 2);
+            this.BrickList.push(brick);
+            this.BrickCount++;
+            this.BrickNumber++;
+            brick.getComponent("brick").type = j;
+            if (j == BrickType.B2) {
+                if (brick.position.x <= (data.distance + brick.width * 1.5 * brick.scale)) {
+                    brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(data.speedx, -(this.speed));
+                } else if (brick.position.x >= this.BackGround.width - (data.distance + brick.width * 1.5 * brick.scale)) {
+                    brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(-data.speedx, -(this.speed));
+                } else {
+                    let arr = [-1, 1];
+                    let a = arr[Math.round(Math.random())];
+                    brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(data.speedx * a, -(this.speed));
+                }
+            } else if (j == BrickType.B3) {
+                brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.speed * data.speedUp));
+            } else {
+                brick.getComponent(cc.RigidBody).linearVelocity = cc.v2(0, -(this.speed));
+            }
 
-        if (j == BrickType.B1) {
-            brick.getComponent(Brick).life = data.life;
-        }
-        if (j == BrickType.B4) {
-            brick.runAction(cc.repeatForever(cc.sequence(cc.fadeOut(0.01), cc.delayTime(data.blinkhide), cc.fadeIn(0.01), cc.delayTime(data.blinkshow))));
+            if (j == BrickType.B1) {
+                brick.getComponent(Brick).life = data.life;
+            }
+            if (j == BrickType.B4) {
+                brick.runAction(cc.repeatForever(cc.sequence(cc.fadeOut(0.01), cc.delayTime(data.blinkhide), cc.fadeIn(0.01), cc.delayTime(data.blinkshow))));
+            }
         }
     }
+    public reduceHeart() {
+        this.HeartCount--;
+        // console.log(this.HeartCount);
+        // this.HeartList[this.HeartCount].destroy();
+        // this.HeartList.splice(this.HeartCount, 1);
+        this.HearLabel.string = "<outline color=#42350F width=2>" + this.HeartCount + "</outline>";
+        if (this.HeartCount == 0) {
 
-    protected reduceBrick(pos: cc.Vec2, type: number, boom?: boolean, node?: cc.Node, life?: number) {
-        let self = this;
-        if (life == 0) {
-            if (!boom) {
-                this.scheduleOnce(function () {
-                    if (node) {
-                        node.getComponent("brick").state = BrickState.end;
-                    }
-                    this.Count -= 4;
-                }.bind(this), this.BrickData[type].fadeTime + this.BrickData[type].delayTime + this.BrickData[type].scaleTime);
-            } else {
-                let dir = [cc.v2(1, 1), cc.v2(-1, 1), cc.v2(-1, -1), cc.v2(1, -1)];
-                let dis: number = this.DataConfig["block"].position;
-                let speed: number = this.DataConfig["block"].speed;
-                for (let i = 0; i < 4; i++) {
-                    let fadetime = 0;
-                    let dirx = dir[i].x;
-                    let diry = dir[i].y;
-                    let block = cc.instantiate(self.instance.Block);
-                    block.scale = this.BrickData[type].scale;
-                    block.parent = this.BackGround;
-                    if (type == BrickType.B3) {
-                        block.x = pos.x + dirx * dis * 0.5;
-                        block.y = pos.y + diry * dis * 0.5;
-                    } else {
-                        block.x = pos.x + dirx * dis;
-                        block.y = pos.y + diry * dis;
-                    }
-                    let fun1 = cc.callFunc(function () {
-                        switch (type) {
-                            case BrickType.N1: {
-                                block.getComponent(cc.RigidBody).linearVelocity = cc.v2(dirx * speed, diry * speed);
-                            }
-                                break;
-                            case BrickType.N2: {
-                                block.getComponent(cc.RigidBody).linearVelocity = cc.v2(dirx * speed * 2, diry * speed * 2);
-                                block.color = cc.Color.RED;
-                                block.getComponent(cc.RigidBody).gravityScale = 0;
-                            }
-                                break;
-                            case BrickType.N3: {
-                                block.getComponent(cc.RigidBody).linearVelocity = cc.v2(dirx * speed * 2, diry * speed * 2);
-                                block.color = new cc.Color(246, 23, 255);
-                            }
-                                break;
-                            case BrickType.N4: {
-                                block.getComponent(cc.RigidBody).linearVelocity = cc.v2(dirx * speed, diry * speed);
-                                block.color = new cc.Color(30, 187, 30);
-                            }
-                                break;
-                            case BrickType.A1: {
-                                block.getComponent(cc.RigidBody).linearVelocity = cc.v2(dirx * speed, diry * speed);
-                                block.color = new cc.Color(56, 176, 233);
-                            }
-                                break;
-                            case BrickType.A2: {
-                                block.getComponent(cc.RigidBody).linearVelocity = cc.v2(dirx * speed, diry * speed);
-                                block.color = new cc.Color(241, 241, 132);
-                            }
-                                break;
-                            case BrickType.A3: {
-                                block.getComponent(cc.RigidBody).linearVelocity = cc.v2(dirx * speed, diry * speed);
-                                block.color = new cc.Color(51, 51, 48);
-                            }
-                                break;
-                            case BrickType.A4: {
-                                block.getComponent(cc.RigidBody).linearVelocity = cc.v2(dirx * speed, diry * speed);
-                                block.color = new cc.Color(111, 29, 255);
-                            }
-                                break;
-                            case BrickType.B1: {
-                                block.getComponent(cc.RigidBody).linearVelocity = cc.v2(dirx * speed, diry * speed);
-                                block.color = new cc.Color(82, 108, 126);
-                            }
-                                break;
-                            case BrickType.B2: {
-                                block.getComponent(cc.RigidBody).linearVelocity = cc.v2(dirx * speed, diry * speed);
-                                block.color = new cc.Color(7, 65, 7);
-                            }
-                                break;
-                            case BrickType.B3: {
-                                block.getComponent(cc.RigidBody).linearVelocity = cc.v2(dirx * speed, diry * speed);
-                                block.color = new cc.Color(240, 151, 39);
-                            }
-                                break;
-                            case BrickType.B4: {
-                                block.getComponent(cc.RigidBody).linearVelocity = cc.v2(dirx * speed, diry * speed);
-                                block.color = new cc.Color(124, 247, 237);
-                            }
-                                break;
-                            default:
-                                break;
-                        }
-                    })
-                    let fun2 = cc.callFunc(function () {
-                        block.destroy();
-                    }.bind(this))
-                    block.runAction(cc.sequence(fun1, cc.fadeOut(this.DataConfig["block"].fadeTime), fun2));
-                }
-                this.scheduleOnce(function () {
-                    if (node) {
-                        node.getComponent("brick").state = BrickState.end;
-                    }
-                    this.Count -= 4;
-                }.bind(this), this.DataConfig["block"].fadeTime);
-
-            }
+            this.gameOver();
         }
-
     }
 
     protected gameRule() {
@@ -492,7 +276,7 @@ export default class EndlessGame extends cc.Component {
         cc.director.resume();
 
     }
-    protected backToMenu() {  
+    protected backToMenu() {
         cc.director.loadScene("mainmenu");
     }
 
@@ -515,11 +299,7 @@ export default class EndlessGame extends cc.Component {
         }
         let highscore = cc.sys.localStorage.getItem("endless");
         cc.find('content/highscore', this.GameOver).getComponent(cc.RichText).string = "<outline color=#3A230A width=5>" + highscore + " </outline>";
-
-        // cc.find('')
     }
-
-
 
     protected update(dt) {
         let self = this;
@@ -564,6 +344,7 @@ export default class EndlessGame extends cc.Component {
                 if (this.BrickList[i].getComponent("brick").state == BrickState.touch && this.BrickList[i].getComponent("brick").life == 0) {
                     this.BrickList[i].removeFromParent();
                 } if (this.BrickList[i].getComponent("brick").state == BrickState.end) {
+                    this.BrickList[i].destroy();
                     this.BrickList.splice(i, 1);
                 }
             }

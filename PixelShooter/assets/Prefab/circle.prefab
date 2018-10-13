@@ -29,9 +29,9 @@
     "_opacity": 255,
     "_color": {
       "__type__": "cc.Color",
-      "r": 56,
-      "g": 176,
-      "b": 233,
+      "r": 255,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
     "_contentSize": {
@@ -97,7 +97,7 @@
     "_isTrimmedMode": true,
     "_state": 0,
     "_atlas": null,
-    "_id": "52n75wuGBK5a73m+hVH3u+"
+    "_id": "afpi+F/XpPVa4esAPRCMvY"
   },
   {
     "__type__": "cc.PrefabInfo",
