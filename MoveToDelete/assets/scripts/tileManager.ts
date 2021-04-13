@@ -9,7 +9,8 @@ export class tileManager extends Component {
     tileContainer!: Node;
     @property(Prefab)
     tile_Prefab!: Prefab;
-
+    @property(Node)
+    blockNode!: Node;
     tileData: number[][] = [];
     tileMap: any[][] = [];
     static instance: tileManager;
@@ -25,6 +26,10 @@ export class tileManager extends Component {
             this.tileData.push(array);
         }
 
+    }
+
+    isShowBlock(isShow: boolean) {
+        this.blockNode.active = isShow;
     }
 
     init() {

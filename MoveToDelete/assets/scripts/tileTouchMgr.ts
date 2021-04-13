@@ -145,6 +145,7 @@ export class TileTouchMgr extends Component {
                         tileManager.instance.tileMap[hang][tileLie] = null;
                         tileManager.instance.tileMap[hang][tileLie - 1] = this.tile.getComponent(Tile);
                         this.tile.getComponent(Tile)?.fresh(this.currentNum);
+                        console.log('**********left delete************')
                         return (tileLie - 1) * 118 + 55;
                     }
 
@@ -285,47 +286,50 @@ export class TileTouchMgr extends Component {
         }
     }
     onTouchEnd() {
-
-        console.log('----------move end ----------');
+        tileManager.instance.isShowBlock(true);
+        // console.log('----------move end ----------');
         let finHang = Math.floor((this.tile.position.y - 55) / 118);
         let finLie = Math.floor((this.tile.position.x) / 118);
         this.tile.setPosition(v3(finLie * 118 + 55, finHang * 118 + 55, 0));
         let hang: number = 0;
         let hasdelete = false;
-        for (let i = finHang; i > 0; i--) {
+        for (let i = finHang; i >= 0; i--) {
             if (tileManager.instance.tileData[i][finLie] == 0) {
                 hang = i;
-                if (tileManager.instance.tileData[i - 1][finLie] == this.currentNum) {
-                    hang = i - 1;
-                    hasdelete = true;
-                    setTimeout(() => {
-                        if (tileManager.instance.tileMap[i - 1][finLie]) {
-                            tileManager.instance.tileMap[i - 1][finLie].node.destroy();
-                        }
-                        tileManager.instance.tileMap[i - 1][finLie] = this.tile.getComponent(Tile);
-                    }, 1000 * this.delayTime);
-                    this.currentNum += 1;
+                if (i > 0) {
+                    if (tileManager.instance.tileData[i - 1][finLie] == this.currentNum) {
+                        hang = i - 1;
+                        hasdelete = true;
+                        setTimeout(() => {
+                            if (tileManager.instance.tileMap[i - 1][finLie]) {
+                                tileManager.instance.tileMap[i - 1][finLie].node.destroy();
+                            }
+                            tileManager.instance.tileMap[i - 1][finLie] = this.tile.getComponent(Tile);
+                        }, 1000 * this.delayTime);
+                        this.currentNum += 1;
+                    }
                 }
             }
         }
 
 
-        // console.log(this.currentNum);
+        console.log(this.currentNum);
 
         tween(this.tile)
             .to(this.delayTime, { position: v3(finLie * 118 + 55, hang * 118 + 55, 0) })
             // .union()
 
             // .call(() => {
-
+               
 
             // })
             .repeat(1)
             .start();
 
         // if (hasdelete ){
-        tileManager.instance.tileData[hang][finLie] = this.currentNum;
         setTimeout(() => {
+            tileManager.instance.isShowBlock(false);
+            tileManager.instance.tileData[hang][finLie] = this.currentNum;
             if (tileManager.instance.tileMap[hang][finLie]) {
                 tileManager.instance.tileMap[hang][finLie].fresh(this.currentNum);
                 this.currentNum = 0;

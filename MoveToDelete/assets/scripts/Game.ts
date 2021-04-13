@@ -5,8 +5,7 @@ const { ccclass, property } = _decorator;
 
 @ccclass('Game')
 export class Game extends Component {
-    
-
+   
 
     onLoad() {
         tileManager.instance.init();
