@@ -1,23 +1,35 @@
 
-import { _decorator, Component, Node, Prefab } from 'cc';
+import { _decorator, Component, Node, Prefab, director } from 'cc';
 import { tileManager } from './tileManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('Game')
 export class Game extends Component {
-   
+    Timer: number = 10;
+    timerCount = 0;
 
     onLoad() {
         tileManager.instance.init();
+        // setTimeout(() => {
+        //     tileManager.instance.addTiles();
+        // }, 2 * 1000);
     }
 
     start() {
         // [3]
     }
 
-    // update (deltaTime: number) {
-    //     // [4]
-    // }
+    update(dt: number) {
+        this.timerCount += dt;
+        if (this.timerCount >= this.Timer) {
+            // tileManager.instance.addTiles();
+            console.log('Timer Passed');
+            this.timerCount = 0;
+        }
+
+
+
+    }
 }
 
 /**

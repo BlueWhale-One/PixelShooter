@@ -3,34 +3,20 @@ import { _decorator, Component, Node, Vec2, Vec3, EventTouch, v3, math, Prefab, 
 import { Tile } from './tile';
 import { tileManager } from './tileManager';
 const { ccclass, property } = _decorator;
-enum MoveDir {
-    None = -1,
-    UP,
-    Down,
-    Left,
-    Right
-}
-@ccclass('TileTouchMgr')
-export class TileTouchMgr extends Component {
+
+@ccclass('TileTouchMgrBackUp')
+export class TileTouchMgrBackUp extends Component {
     @property(Node)
     tile!: Node;
-    @property(Tile)
-    tileCom!: Tile;
-
-    ifDelete = false;
+    // @property()
 
     touchStartPos!: Vec3;
-
-    touchStartHang: number = -1;
-    touchStartLie: number = -1;
 
     // data = [[1,2],[]];
     currentNum: number = 0;
 
     delayTime = 0.4;
-    moveDownSpeed = 10;
 
-    checkDown = false;
 
     onLoad() {
         this.tile.on(Node.EventType.TOUCH_START, this.onTouchStart, this);
@@ -39,12 +25,6 @@ export class TileTouchMgr extends Component {
         this.tile.on(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
     }
 
-    onDestroy() {
-        this.tile.off(Node.EventType.TOUCH_START, this.onTouchStart, this);
-        this.tile.off(Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
-        this.tile.off(Node.EventType.TOUCH_END, this.onTouchEnd, this);
-        this.tile.off(Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
-    }
     onTouchStart(event: EventTouch) {
         // console.log('----------move start ----------');
         // if (!this.touchStartPos) {
@@ -54,11 +34,8 @@ export class TileTouchMgr extends Component {
             let hang = Math.floor((this.tile.position.y + 55) / 118);
             let lie = Math.floor((this.tile.position.x) / 118);
             this.currentNum = tileManager.instance.tileData[hang][lie];
-            this.touchStartLie = lie;
-            this.touchStartHang = hang;
-            // console.log(this.touchStartPos);
             tileManager.instance.tileData[hang][lie] = 0;
-            tileManager.instance.tileMap[hang][lie] = null;
+            // console.log(tileManager.instance.tileData);
         }
         // }
     }
@@ -66,11 +43,9 @@ export class TileTouchMgr extends Component {
     onTouchMove(event: EventTouch) {
         // console.log(event);
         if (event) {
-            this.tile.updateWorldTransform
-            let location = event.getLocation();
-            let pos = new Vec3(location.x - 25, location.y - 25, 0);
-            this.checkHasTile1(event.getDelta(), pos);
-
+            let location = event.getDelta();
+            // let pos = new Vec3(location.x - 25, location.y - 25, 0);
+            // this.checkHasTile1(event.getDelta(), pos);
             // this.tile.position = pos;
             // if (this.tile.position.x >= 645) {
             //     this.tile.setPosition(v3(645, this.tile.position.y, 0));
@@ -84,7 +59,7 @@ export class TileTouchMgr extends Component {
             // if (this.tile.position.y <= 55) {
             //     this.tile.setPosition(v3(this.tile.position.x, 55, 0));
             // }
-
+            this.tile.position = new Vec3(this.tile.position.x + location.x, this.tile.position.y + location.y, 0);
 
         }
     }
@@ -124,35 +99,12 @@ export class TileTouchMgr extends Component {
         let Hang = Math.floor((posy) / 118);
         // let finHangR = Math.floor((posx + 55) / 118);
 
-        let disX = posLocation.x - this.tile.position.x;
-
-        // if (disX > 0) {
-        //     if (tileManager.instance.tileData[finHang][Lie - 1] != 0) {
-        //         console.log('*******left********');
-        //         posx = 55 + 118 * finLie;
-        //     }
-        // }
-        // if (disX < 0) {
-        //     if (tileManager.instance.tileData[finHang][Lie + 1] != 0) {
-        //         console.log('*******right********');
-        //         posx = 55 + 118 * finLie;
-        //     }
-        // }
-
-        // finHang > 0 && finHang < 8) {
 
 
-        // if (tileManager.instance.tileData[finHang + 1][Lie] != 0) {
-        //     posy = 55 + 118 * finHang;
-        // }
-        // if (tileManager.instance.tileData[finHang - 1][lie] != 0) {
-        //     posy = 55 + 118 * finHang;
-        // }
-        // }
         // let pos = v3(tileLie * 118 + 55, posLocation.y, 0);
-        if (finLie > 0 && finLie < 5 && finHang > 0 && finHang < 8) {
+        /* if (finLie > 0 && finLie < 5 && finHang > 0 && finHang < 8) {
 
-            // console.log(finHang, finLie);
+            console.log(finHang, finLie);
             // console.log(tileManager.instance.tileData[finHang][finLie - 1],
             //     tileManager.instance.tileData[finHang][finLie + 1]);
 
@@ -161,12 +113,12 @@ export class TileTouchMgr extends Component {
             //         posy = 55 + 118 * finHang;
             //     }
             // } else {
-            // if (tileManager.instance.tileData[finHang + 1][finLie] != 0) {
-            //     posy = 55 + 118 * finHang;
-            // }
-            // if (tileManager.instance.tileData[finHang - 1][lie] != 0) {
-            //     posy = 55 + 118 * finHang;
-            // }
+            if (tileManager.instance.tileData[finHang + 1][finLie] != 0) {
+                posy = 55 + 118 * finHang;
+            }
+            if (tileManager.instance.tileData[finHang - 1][finLie] != 0) {
+                posy = 55 + 118 * finHang;
+            }
             // }
 
             // if (finHang > 0 && finHang < 8) {
@@ -180,17 +132,15 @@ export class TileTouchMgr extends Component {
             // }
         }
 
+        if (finLie == 0) {
+            if (tileManager.instance.tileData[finHang][finLie] != 0) {
+                posy = 55 + 118 * finHang;
+            }
+        } */
 
         pos = v3(posx, posy, 0);
 
-        if (this.touchStartLie != finLie && this.touchStartHang != -1 && this.touchStartLie != -1) {
-            tileManager.instance.tilesMoveDown(this.touchStartHang, this.touchStartLie);
-            this.touchStartHang = this.touchStartLie = -1;
-        }
-
-        if (!this.ifDelete) {
-            this.tile.setPosition(pos);
-        }
+        this.tile.setPosition(pos);
 
         // }
     }
@@ -237,66 +187,66 @@ export class TileTouchMgr extends Component {
         if (lieLeft < 0) {
             lieLeft = 0;
         }
-        // 往左滑动
-        if (disX < 0) {
-            if (tileLie >= 0) {
-                if (tileLie > 0) {
-                    // 检测左边相同合并消除
-                    if (tileManager.instance.tileData[tileHang][tileLie - 1] != 0) {
-                        if (tileManager.instance.tileData[tileHang][tileLie - 1] == this.currentNum) {
-                            if (posLocation.x - 55 <= (tileLie - 1) * 118) {
-                                this.currentNum++;
-                                this.ifDelete = true;
-                                tileManager.instance.tilesDelete(MoveDir.Left, tileHang, tileLie - 1, this.currentNum, this.tileCom);
 
-                            }
-                            // return posLocation.x;
-                        }
-                        // console.log(tileLie);
-                        if (posLocation.x >= tileLie * 118 + 55) {
-                            return posLocation.x;
-                        }
-                        return tileLie * 118 + 55;
-                    } else {
-                        for (let i = tileLie; i >= 0; i--) {
-                            if (i > 0) {
-                                if (tileManager.instance.tileData[tileHang][i - 1] != 0) {
-                                    // , Math.floor(posLocation.y / 118));
-                                    if (Math.floor(posLocation.x / 118) >= i) {
-                                        if (Math.floor(posLocation.x / 118) == 0) {
-                                            return 55;
-                                        }
-                                        return posLocation.x;
-                                    } else {
-                                        return i * 118 + 55;
+        if (disX < 0) {
+            if (tileLie > 0) {
+                if (tileManager.instance.tileData[tileHang][tileLie - 1] != 0) {
+
+                    if (tileManager.instance.tileData[tileHang][tileLie - 1] == this.currentNum) {
+                        //     this.currentNum++;
+                        //     tileManager.instance.tileData[hang][tileLie - 1]++;
+                        //     tileManager.instance.tileMap[hang][tileLie - 1].node.destroy();
+                        //     tileManager.instance.tileMap[hang][tileLie] = null;
+                        //     tileManager.instance.tileMap[hang][tileLie - 1] = this.tile.getComponent(Tile);
+                        //     this.tile.getComponent(Tile)?.fresh(this.currentNum);
+                        //     console.log('**********left delete************');
+
+                        //     tileManager.instance.isShowBlock(true);
+                        //     setTimeout(() => {
+                        //         tileManager.instance.isShowBlock(false);
+                        //     }, this.delayTime * 1000);
+
+                        //     return (tileLie - 1) * 118 + 55;
+                    }
+                    return tileLie * 118 + 55;
+                } else {
+                    for (let i = tileLie; i >= 0; i--) {
+                        if (i > 0) {
+                            if (tileManager.instance.tileData[tileHang][i - 1] != 0) {
+                                console.log(i);
+                                // , Math.floor(posLocation.y / 118));
+                                if (Math.floor(posLocation.x / 118) >= i) {
+                                    if (Math.floor(posLocation.x / 118) == 0) {
+                                        return 55;
                                     }
+                                    return posLocation.x;
                                 } else {
-                                    continue;
+                                    return i * 118 + 55;
                                 }
                             } else {
-                                if (tileManager.instance.tileData[tileHang][i] == 0) {
-                                    // , Math.floor(posLocation.y / 118));
-                                    if (Math.floor(posLocation.x / 118) >= i) {
-                                        // if (Math.floor(posLocation.x / 118) == 0) {
-                                        //     return 55;
-                                        // }
-                                        return posLocation.x;
-                                    } else {
-                                        return i * 118 + 55;
+                                continue;
+                            }
+                        } else {
+                            if (tileManager.instance.tileData[tileHang][i] == 0) {
+                                // , Math.floor(posLocation.y / 118));
+                                if (Math.floor(posLocation.x / 118) >= i) {
+                                    if (Math.floor(posLocation.x / 118) == 0) {
+                                        return 55;
                                     }
+                                    return posLocation.x;
+                                } else {
+                                    return i * 118 + 55;
                                 }
                             }
                         }
                     }
                 }
-                // else {
-                //     if (posLocation.x >= 55) {
-                //         return posLocation.x;
-                //     } else {
-                //         return 55;
-                //     }
-                // }
 
+                // for (let i = tileLie; i > 0; i--) {
+                // if (tileManager.instance.tileData[tileHang][tileLieLeft] == 0) {
+                //     return posLocation.x;
+                // }
+                // }
 
             }
             if (tileManager.instance.tileData[tileHang][lieLeft] != 0) {
@@ -312,22 +262,8 @@ export class TileTouchMgr extends Component {
             }
             return posLocation.x;
         } else {
-            // 向右滑动
             if (tileLie < 5) {
-                // 检测右边相同消除
                 if (tileManager.instance.tileData[tileHang][tileLie + 1] != 0) {
-                    if (tileManager.instance.tileData[tileHang][tileLie + 1] == this.currentNum) {
-                        if (posLocation.x - 55 >= (tileLie + 1) * 118) {
-                            this.currentNum++;
-                            this.ifDelete = true;
-                            tileManager.instance.tilesDelete(MoveDir.Right, tileHang, tileLie + 1, this.currentNum, this.tileCom);
-
-                        }
-                        // return posLocation.x;
-                    }
-                    if (posLocation.x <= tileLie * 118 + 55) {
-                        return posLocation.x;
-                    }
                     return tileLie * 118 + 55;
                 } else {
                     for (let i = tileLie; i <= 5; i++) {
@@ -347,9 +283,9 @@ export class TileTouchMgr extends Component {
                         } else {
                             if (tileManager.instance.tileData[tileHang][i] == 0) {
                                 if (Math.floor(posLocation.x / 118) <= i) {
-                                    // if (Math.floor(posLocation.x / 118) >= 5) {
-                                    //     return 5 * 118 + 55;
-                                    // }
+                                    if (Math.floor(posLocation.x / 118) >= 5) {
+                                        return 5 * 118 + 55;
+                                    }
                                     return posLocation.x;
                                 } else {
                                     return i * 118 + 55;
@@ -359,6 +295,18 @@ export class TileTouchMgr extends Component {
                     }
                 }
             }
+            /*  else {
+                 if (tileManager.instance.tileData[tileHang][tileLie] == 0) {
+                     if (Math.floor(posLocation.x / 118) <= tileLie * 118 + 55) {
+                         // if (Math.floor(posLocation.x / 118) == 0) {
+                         //     return 55;
+                         // }
+                         return posLocation.x;
+                     }
+                     return tileLie * 118 + 55;
+                 }
+             } */
+            // if (lieRight < 5) {
             if (tileManager.instance.tileData[tileHang][lieRight] != 0) {
                 return tileLie * 118 + 55;
             }
@@ -385,8 +333,14 @@ export class TileTouchMgr extends Component {
         // let tileHang = Math.floor((this.tile.position.y) / 118);
         let tileLieRight = Math.floor((this.tile.position.x + 55) / 118);
 
-        let hangUp = Math.floor((posLocation.y + 55) / 118);
-        let hangDown = Math.floor((posLocation.y - 55) / 118);
+        let hangUp = Math.floor((
+            // this.tile.position.y
+            posLocation.y
+            + 55) / 118);
+        let hangDown = Math.floor((
+            // this.tile.position.y
+            posLocation.y
+            - 55) / 118);
         let hang = Math.floor((posLocation.y) / 118);
         let lie = Math.floor((posLocation.x) / 118);
 
@@ -397,12 +351,6 @@ export class TileTouchMgr extends Component {
         }
         if (hangDown <= 0) {
             hangDown = 0;
-        }
-        if (hangDown >= 7) {
-            hangDown = 7;
-        }
-        if (hangUp <= 0) {
-            hangUp = 0;
         }
         if (hangUp >= 7) {
             hangUp = 7;
@@ -430,72 +378,70 @@ export class TileTouchMgr extends Component {
 
 
         if (disY < 0) {
-            // 向下滑动
             // console.log(tileManager.instance.tileData[hang][lieLeft]);
-            if (tileHang >= 0) {
-                if (tileHang > 0) {
-                    if (tileManager.instance.tileData[tileHang - 1][tileLie] == 0) {
-                        for (let i = hang; i < 8; i++) {
-                            if (tileManager.instance.tileData[i][tileLie] == 0) {
-                                if (Math.floor(posLocation.y / 118) >= i) {
-                                    return posLocation.y;
-                                } else {
-                                    return i * 118 + 55;
-                                }
-                            }
-                            continue;
-                        }
-                    } else {
-                        if (tileManager.instance.tileData[tileHang - 1][tileLie] == this.currentNum) {
-                            if (posLocation.y - 55 <= (tileHang - 1) * 118) {
-                                this.currentNum++;
-                                this.ifDelete = true;
-                                tileManager.instance.tilesDelete(MoveDir.Down, tileHang - 1, tileLie, this.currentNum, this.tileCom);
 
-                            }
-                            // return posLocation.x;
-                        }
-                        if (posLocation.y >= tileHang * 118 + 55) {
-                            return posLocation.y;
-                        }
-                        return tileHang * 118 + 55;
-                    }
+            if (tileHang > 0) {
+                // return tileHang * 118 + 55;
+                // } else {
+                if (tileManager.instance.tileData[tileHang - 1][tileLie] != 0) {
+                    return tileHang * 118 + 55;
                 }
                 else {
-                    if (posLocation.y >= 55) {
-                        return posLocation.y;
-                    } else {
-                        return 55;
+                    for (let i = hang; i < 8; i++) {
+                        if (tileManager.instance.tileData[i][tileLie] == 0) {
+                            // console.log(i, Math.floor(posLocation.y / 118));
+                            if (Math.floor(posLocation.y / 118) >= i) {
+                                if (Math.floor(posLocation.y / 118) == 0) {
+                                    return 55;
+                                }
+                                // let y = Math.floor((posLocation.y - 55) / 118);
+                                // console.log(y);
+                                // if (tileManager.instance.tileData[y][tileLie] != 0) {
+                                //     return (y + 1) * 118 + 55;
+                                // }
+
+                                return posLocation.y;
+                            } else {
+                                return i * 118 + 55;
+                            }
+                        }
+                        continue;
                     }
                 }
+
             }
-            if (tileManager.instance.tileData[hangDown][tileLie] != 0) {
-                return tileHang * 118 + 55;
-            }
+
             if (tileManager.instance.tileData[hangUp][tileLie] != 0) {
+                // if (Math.floor(posLocation.y / 118 + 55) <= hangUp) {
+                //     return posLocation.y;
+                // } else {
                 return tileHang * 118 + 55;
+                // }
             }
+            // if (hangDown > 0) {
+            if (tileManager.instance.tileData[hangDown][tileLie] != 0) {
+                // if (Math.floor(posLocation.y / 118) >= hangDown) {
+                //     return posLocation.y;
+                // } else {
+                return tileHang * 118 + 55;
+                // }
+            }
+            // }
             if (hangDown == hangUp) {
                 return tileHang * 118 + 55;
+            }
+            if (tileManager.instance.tileData[tileHang][tileLie - 1] != 0) {
+                return this.tile.position.x;
             }
             return posLocation.y;
         }
         else {
-            // 向上滑动
+            // if (tileHang > 6) {
+            //     return tileHang * 118 + 55;
+            // }
+
             if (tileHang < 7) {
                 if (tileManager.instance.tileData[tileHang + 1][tileLie] != 0) {
-                    if (tileManager.instance.tileData[tileHang + 1][tileLie] == this.currentNum) {
-                        if (posLocation.y - 55 >= (tileHang + 1) * 118) {
-                            this.currentNum++;
-                            this.ifDelete = true;
-                            tileManager.instance.tilesDelete(MoveDir.UP, tileHang + 1, tileLie, this.currentNum, this.tileCom);
-
-                        }
-                        // return posLocation.x;
-                    }
-                    if (posLocation.y <= tileHang * 118 + 55) {
-                        return posLocation.y;
-                    }
                     return tileHang * 118 + 55;
                 }
                 else {
@@ -538,55 +484,49 @@ export class TileTouchMgr extends Component {
                 if (i > 0) {
                     if (tileManager.instance.tileData[i - 1][finLie] == this.currentNum) {
                         hang = i - 1;
+                        hasdelete = true;
+                        setTimeout(() => {
+                            if (tileManager.instance.tileMap[i - 1][finLie]) {
+                                tileManager.instance.tileMap[i - 1][finLie].node.destroy();
+                            }
+                            tileManager.instance.tileMap[i - 1][finLie] = this.tile.getComponent(Tile);
+                        }, 1000 * this.delayTime);
                         this.currentNum += 1;
-                        // hasdelete = true;
                     }
-
                 }
             }
         }
-        if (this.tileCom.hang == hang && this.tileCom.lie == finLie) {
-            tileManager.instance.tileData[hang][finLie] = this.currentNum;
-            tileManager.instance.tileMap[hang][finLie] = this.tile;
-        }
-        // console.log(finHang - hang);
-        tileManager.instance.delayTime = (finHang - hang) * 1.5 / this.moveDownSpeed;
-
-        setTimeout(() => {
-            if (this.touchStartHang != hang) {
-                tileManager.instance.tilesDelete(MoveDir.Down, hang, finLie, this.currentNum, this.tileCom);
-                // tileManager.instance.tilesMoveDown(hang, finLie);
-            }
-            // if (this.tileCom.hang == hang && this.tileCom.lie == finLie) {
-            //     tileManager.instance.tileData[this.touchStartHang][this.touchStartLie] = this.currentNum;
-            //     tileManager.instance.tileMap[this.touchStartHang][this.touchStartLie] = this.tile;
-            // }
 
 
-        }, 1000 * tileManager.instance.delayTime);
         // console.log(this.currentNum);
 
-        // if (hang != finHang) {
+        if (hang != finHang) {
 
-        // } else {
+        } else {
 
-        // }
+        }
         tween(this.tile)
-            .to(tileManager.instance.delayTime, { position: v3(finLie * 118 + 55, hang * 118 + 55, 0) })
+            .to(this.delayTime, { position: v3(finLie * 118 + 55, hang * 118 + 55, 0) })
+            // .union()
+
+            // .call(() => {
+
+
+            // })
             .repeat(1)
             .start();
 
         setTimeout(() => {
             tileManager.instance.isShowBlock(false);
-            // tileManager.instance.tileData[hang][finLie] = this.currentNum;
-            // if (hasdelete) {
-            //     if (tileManager.instance.tileMap[hang][finLie]) {
-            //         tileManager.instance.tileMap[hang][finLie].fresh(this.currentNum);
-            //     }
-            // }
+            tileManager.instance.tileData[hang][finLie] = this.currentNum;
+            if (hasdelete) {
+                if (tileManager.instance.tileMap[hang][finLie]) {
+                    tileManager.instance.tileMap[hang][finLie].fresh(this.currentNum);
+                }
+            }
             // console.log(tileManager.instance.tileData);
             this.currentNum = 0;
-        }, 1000 * tileManager.instance.delayTime);
+        }, 1000 * this.delayTime);
     }
 
     checkSameAdd() {
